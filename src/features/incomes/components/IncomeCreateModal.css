@@ -1,0 +1,714 @@
+.hmodal__backdrop.hmodal__backdrop--incomeCreate{
+  background: rgba(0, 0, 0, 0.74);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+
+.hmodal__panel {
+  overflow: visible !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* =========================
+   Header
+   ========================= */
+
+.imodal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.imodal__title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.imodal__sub {
+  opacity: 0.75;
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.imodal__close {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+.imodal__close:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.imodal__close:active {
+  transform: scale(0.98);
+}
+
+.imodal__close:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+/* =========================
+   Body + fields
+   ========================= */
+
+.imodal__body {
+  padding: 14px 18px 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.imodal__field {
+  display: grid;
+  gap: 7px;
+}
+
+.imodal__field > span {
+  font-size: 12px;
+  opacity: 0.8;
+  letter-spacing: 0.2px;
+}
+
+.imodal__field input,
+.imodal__field select {
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  padding: 0 12px;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease,
+    box-shadow 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.imodal__field input::placeholder {
+  opacity: 0.8;
+}
+
+.imodal__field input:focus,
+.imodal__field select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+.imodal__row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.imodal__error {
+  border: 1px solid rgba(255, 80, 80, 0.38);
+  background: rgba(255, 80, 80, 0.1);
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.itoggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.itoggle__opt {
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+
+.itoggle__opt:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.itoggle__opt.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.itoggle__hint {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.25;
+}
+
+/* =========================
+   Footer + buttons
+   ========================= */
+
+.imodal__footer {
+  padding: 14px 18px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.imodal__btn {
+  height: 44px;
+  border-radius: 14px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.imodal__btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.imodal__btn:active {
+  transform: translateY(1px);
+}
+
+.imodal__btn:not(.ghost) {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.12)
+  );
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.imodal__btn.ghost {
+  background: transparent;
+}
+
+.imodal__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================
+   Custom Select
+   ========================= */
+
+.iselect {
+  position: relative;
+}
+
+.iselect__btn {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease,
+    transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iselect__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.iselect__btn:active {
+  transform: translateY(1px);
+}
+
+.iselect__btn:focus-visible {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+.iselect__main {
+  display: grid;
+  gap: 2px;
+}
+
+.iselect__label {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.iselect__sub {
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.1;
+}
+
+.iselect__chev {
+  opacity: 0.75;
+  font-size: 14px;
+  transition: transform 0.15s ease;
+}
+
+.iselect__btn[aria-expanded="true"] .iselect__chev {
+  transform: rotate(180deg);
+}
+
+.iselect__menu {
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 20, 26, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+
+  padding: 6px;
+  overflow: visible;
+}
+
+.iselect__opt {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 2px 10px;
+
+  padding: 10px 10px;
+  margin: 4px 0;
+
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+
+.iselect__opt:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.iselect__opt:active {
+  transform: translateY(1px);
+}
+
+.iselect__optTitle {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.iselect__optSub {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.1;
+}
+
+.iselect__tick {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  align-self: center;
+  justify-self: end;
+
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  line-height: 1;
+}
+
+.iselect__opt.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* =========================
+   Custom Date Picker
+   ========================= */
+
+.idate {
+  position: relative;
+}
+
+.idate__btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease,
+    transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.idate__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.idate__btn:active {
+  transform: translateY(1px);
+}
+
+.idate__btn:focus-visible {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+.idate__value {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.idate__icon {
+  padding-left: 10px;
+  opacity: 0.75;
+}
+
+/* =========================
+   Desktop Popover
+   ========================= */
+
+.idate__pop {
+  z-index: 2000;
+
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 20, 26, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+  padding: 10px;
+
+  max-height: min(520px, calc(100vh - 24px));
+  overflow: visible;
+}
+
+.idate__pop .rdp {
+  overflow: visible;
+  --rdp-cell-size: 38px;
+  --rdp-accent-color: rgba(255, 255, 255, 0.18);
+  --rdp-background-color: rgba(255, 255, 255, 0.10);
+  margin: 0;
+  color: inherit;
+}
+
+.idate__pop .rdp-month_caption {
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.idate__pop .rdp-weekday {
+  opacity: 0.65;
+  font-weight: 700;
+}
+
+.idate__pop .rdp-day_button {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+}
+
+.idate__pop .rdp-day_button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.idate__pop .rdp-selected .rdp-day_button {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  font-weight: 800;
+}
+
+.idate__pop .rdp-nav_button,
+.idateSheet .rdp-nav_button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.idate__pop .rdp-nav_button {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.idate__pop .rdp-nav_button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.idate__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.idate__action {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.idate__action:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.idate__action.ghost {
+  background: transparent;
+}
+
+/* =========================
+   Mobile Date Sheet
+   ========================= */
+
+.idateSheet__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: grid;
+  align-items: end;
+  padding: 12px;
+}
+
+.idateSheet {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 20, 26, 0.95);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.65);
+  padding: 12px;
+}
+
+.idateSheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 10px;
+}
+
+.idateSheet__title {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.idateSheet__close {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+}
+
+.idateSheet__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.idate__pop .rdp-caption {
+  position: relative;
+}
+
+.idate__pop .rdp-nav {
+  z-index: 5;
+}
+
+.idate__pop .rdp-nav_button,
+.idate__pop .rdp-button_prev,
+.idate__pop .rdp-button_next {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.idate__popHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 2px 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.idate__popTitle {
+  font-weight: 800;
+  opacity: 0.9;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.idate__popClose {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.idate__popClose:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.iscope {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.iscope__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.iscope__label {
+  font-size: 12px;
+  opacity: 0.8;
+  letter-spacing: 0.2px;
+}
+
+.iscope__pill {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.95;
+}
+
+.iscope__pill.shared {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.iscope__pill.personal {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.iscope__meta {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.25;
+}
+
+.iscope.is-flash {
+  animation: scopeFlash 0.7s ease-out;
+}
+
+/* =========================
+   Animations
+   ========================= */
+
+@keyframes scopeFlash {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0); }
+  30% { box-shadow: 0 0 0 6px rgba(255,255,255,0.08); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0); }
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 560px) {
+  .hmodal__panel {
+    overflow: hidden !important;
+  }
+
+  .imodal__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .imodal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .imodal__btn {
+    width: 100%;
+  }
+}

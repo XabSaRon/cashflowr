@@ -1,0 +1,163 @@
+{
+  "loginTitle": "CashFlowr",
+  "loginSubtitle": "Controla tus ingresos y gastos sin complicaciones",
+  "loginWithGoogle": "Entrar con Google",
+  "loading": "Cargando…",
+  "hello": "Hola, {{name}}",
+  "signOut": "Salir",
+  "errors": {
+    "signInFailed": "No se pudo iniciar sesión. Mira consola."
+  },
+  "common": {
+    "copy": "Copiar",
+    "copied": "Copiado ✅",
+    "showLess": "Ver menos",
+    "showMoreCount": "Ver {{count}} más",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "monthShort": "mes",
+    "close": "Cerrar",
+    "today": "Hoy"
+  },
+  "onboarding": {
+    "title": "Crea tu hogar",
+    "subtitle": "Elige si es personal o compartido. Luego podrás añadir ingresos.",
+    "personal": "Personal",
+    "shared": "Compartida",
+    "homeNameLabel": "Nombre del hogar",
+    "homeNamePlaceholder": "Ej: Casa, Piso Centro…",
+    "defaultHomeName": "Mi hogar",
+    "sharedHintPrefix": "Al crear el hogar compartido se generará un",
+    "code": "código",
+    "sharedHintSuffix": "para invitar a otras personas.",
+    "createHome": "Crear hogar",
+    "creating": "Creando…",
+    "inviteCodeTitle": "Código de invitación",
+    "inviteCodeHelp": "Compártelo con quien quieras para que se una.",
+    "haveCodeTitle": "¿Tienes un código?",
+    "codePlaceholder": "Introduce el código",
+    "join": "Unirse",
+    "copyCodeAria": "Copiar código de invitación",
+    "defaults": {
+      "personalHomeName": "Mi hogar",
+      "sharedHomeName": "Hogar compartido"
+    },
+    "errors": {
+      "createHomeFailed": "No se pudo crear el hogar.",
+      "joinHomeFailed": "No se pudo unir al hogar.",
+      "codeInvalid": "Código no válido.",
+      "codeInactive": "Este código ya no es válido. Pide uno nuevo al propietario del hogar."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Hola, {{name}}. Vamos a poner tu hogar en orden.",
+    "cards": {
+      "incomes": {
+        "title": "Ingresos", 
+        "desc": "Añade ingresos y asigna a cada usuario.", 
+        "oneOffThisMonth": "Puntuales este mes: {{value}}",
+        "oneOffPanelTitle": "Puntuales este mes",
+        "oneOffPanelAria": "Puntuales este mes",
+        "oneOffSharedLabel": "Hogar",
+        "oneOffPersonalLabel": "Tú",
+        "addAriaLabel": "Añadir ingreso",
+        "addTitle": "Añadir ingreso",
+        "manageAriaLabel": "Ver ingresos",
+        "manageTitle": "Ver ingresos",
+        "needHomeTitle": "Necesitas un hogar",
+        "emptyHint": "Añade tus primeros ingresos para ver el total mensual.",
+        "emptyHintCta": "Añadir ingreso"
+      },
+      "expenses": { "title": "Gastos", "desc": "Registra gastos y analiza en qué se va el dinero." },
+      "savings": {
+        "title": "Ahorro e inversión",
+        "desc": "Define objetivos de ahorro e inversión y sigue tu progreso.",
+        "chip": "Planificado",
+        "kpiSaved": "Ahorrado",
+        "kpiInvested": "Invertido"
+      }
+    },
+    "loading": "Cargando hogar…",
+    "notFound": "No se encontró el hogar.",
+    "ownerTag": "Propietario",
+    "membersCount_one": "{{count}} miembro",
+    "membersCount_other": "{{count}} miembros",
+    "members":"Miembros",
+    "shareHome": "Compartir hogar",
+    "personalHomeHint": "Este hogar es personal. Si lo conviertes a compartido podrás invitar a otras personas con un código.",
+    "convertToShared": "Convertir a compartido",
+    "joinCode": "Código para unirse",
+    "joinCodeHint": "Compártelo con alguien para que se una a este hogar.",
+    "kick": "Expulsar",
+    "dangerZone": "Zona peligrosa",
+    "leaveHome": "Salir del hogar",
+    "leaveHomeHint": "Dejarás de tener acceso a los datos financieros de este hogar.",
+    "leave": "Salir",
+    "kickConfirmTitle": "Expulsar miembro",
+    "kickConfirmAction": "Vas a expulsar a {{name}} del hogar",
+    "kickConfirmConsequence": "Perderá acceso a los datos financieros y a las tareas de este hogar.",
+    "kickConfirmBtn": "Sí, expulsar",
+    "leaveConfirmTitle": "Salir del hogar",
+    "leaveConfirmAction": "Vas a salir de este hogar",
+    "leaveConfirmConsequence": "Perderás acceso a los datos financieros.",
+    "leaveConfirmBtn": "Sí, salir",
+    "rotateCode": "Regenerar código",
+    "rotateCodeTitle": "Regenerar código",
+    "rotateCodeAction": "¿Quieres generar un nuevo código de unión?",
+    "rotateCodeConsequence": "El código anterior dejará de funcionar. Úsalo si lo compartiste con alguien por error o expulsaste a una persona."
+  },
+  "incomes": {
+    "create": {
+      "title": "Nuevo ingreso",
+      "subtitle": "Añade una entrada de dinero al hogar",
+      "amountLabel": "Importe (€)",
+      "amountPlaceholder": "Ej: 1250,00",
+      "sourceLabel": "Procedencia",
+      "sourcePlaceholder": "Nómina, Bizum, alquiler…",
+      "frequencyLabel": "Frecuencia",
+      "dateLabel": "Fecha",
+      "save": "Guardar ingreso",
+      "saving": "Guardando…",
+      "scopeAria": "Selecciona el ámbito del ingreso",
+      "scopeMeta": "Este ingreso se guardará como: {{scope}}",
+      "errors": {
+        "saveFailed": "Error al guardar el ingreso"
+      },
+      "freq": {
+        "once": { "label": "Puntual", "sub": "Un único ingreso" },
+        "monthly": { "label": "Mensual", "sub": "Cada mes" },
+        "quarterly": { "label": "Trimestral", "sub": "Cada 3 meses" },
+        "yearly": { "label": "Anual", "sub": "Una vez al año" }
+      },
+      "scopeLabel": "Ámbito",
+      "scope": {
+        "shared": "Compartido",
+        "personal": "Personal",
+        "sharedHint": "Se verá en el hogar y cuenta como ingreso puntual compartido.",
+        "personalHint": "Solo lo verás tú y cuenta como ingreso puntual personal."
+      }
+    },
+    "edit": {
+      "title": "Editar ingreso",
+      "subtitle": "Modifica este ingreso",
+      "save": "Guardar cambios"
+    },
+    "manage": {
+      "title": "Ingresos",
+      "subtitle": "Recurrentes primero. Solo puedes editar los tuyos.",
+      "recurrentTitle": "Recurrentes",
+      "oneOffTitle": "Puntuales",
+      "emptyRecurrent": "No hay ingresos recurrentes.",
+      "emptyOneOff": "No hay ingresos puntuales.",
+      "you": "Tú",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "onlyYours": "Solo puedes editar tus ingresos",
+      "deleteTitle": "Eliminar ingreso",
+      "deleteDesc": "Vas a eliminar este ingreso:",
+      "deleteError": "Error al eliminar",
+      "loadingUsers": "…"
+    }
+  }
+}

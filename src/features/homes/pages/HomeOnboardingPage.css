@@ -1,0 +1,273 @@
+.onb {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  min-height: 0;
+}
+
+/* =========================
+   Card
+========================= */
+.onb__card {
+  width: min(520px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 22px;
+  box-sizing: border-box;
+
+  position: relative;
+  transform: translateZ(0);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.onb__card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 19px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: radial-gradient(circle at 25% 18%, rgba(99, 102, 241, 0.3), transparent 55%);
+}
+
+.onb__card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 26px 65px rgba(0, 0, 0, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.onb__card:hover::before {
+  opacity: 1;
+}
+
+.onb__title {
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+
+.onb__sub {
+  margin: 0 0 16px;
+  opacity: 0.85;
+}
+
+/* =========================
+   Segmented buttons
+========================= */
+.onb__seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.onb__seg button {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.onb__seg button:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.onb__seg button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.onb__seg button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.onb__seg button.is-active {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.onb__seg button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================
+   Inputs
+========================= */
+.onb__label {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.onb__label input,
+.onb__joinRow input {
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.onb__label input:hover,
+.onb__joinRow input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.onb__label input:focus,
+.onb__joinRow input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.onb__label input:disabled,
+.onb__joinRow input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Primary button
+========================= */
+.onb__primary {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+  cursor: pointer;
+
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.onb__primary:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+}
+
+.onb__primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.onb__primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.onb__primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================
+   Hint / Error
+========================= */
+.onb__hint {
+  margin-top: 10px;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.onb__error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 120, 120, 0.35);
+  background: rgba(255, 120, 120, 0.08);
+}
+
+/* =========================
+   Divider + Join
+========================= */
+.onb__hr {
+  margin: 18px 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.onb__joinTitle {
+  margin: 0 0 10px;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.onb__joinRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.onb__joinRow button {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.onb__joinRow button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.onb__joinRow button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.onb__joinRow button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+}
+
+.onb__joinRow button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================
+  Responsive
+========================= */
+@media (max-width: 520px) {
+  .onb__card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+}

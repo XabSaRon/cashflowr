@@ -1,0 +1,164 @@
+{
+  "loginTitle": "CashFlowr",
+  "loginSubtitle": "Track your income and expenses without the hassle",
+  "loginWithGoogle": "Sign in with Google",
+  "loading": "Loading…",
+  "hello": "Hi, {{name}}",
+  "signOut": "Sign out",
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied ✅",
+    "showLess": "Show less",
+    "showMoreCount": "Show {{count}} more",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "monthShort": "mo",
+    "close": "Close",
+    "today": "Today"
+  },
+  "errors": {
+    "signInFailed": "Sign-in failed. Check the console."
+  },
+  "onboarding": {
+    "title": "Create your home",
+    "subtitle": "Choose personal or shared. You can add incomes next.",
+    "personal": "Personal",
+    "shared": "Shared",
+    "homeNameLabel": "Home name",
+    "homeNamePlaceholder": "e.g. Home, Downtown flat…",
+    "defaultHomeName": "My home",
+    "sharedHintPrefix": "When you create a shared home, a",
+    "code": "code",
+    "sharedHintSuffix": "will be generated to invite others.",
+    "createHome": "Create home",
+    "creating": "Creating…",
+    "inviteCodeTitle": "Invite code",
+    "inviteCodeHelp": "Share it with anyone you want to join.",
+    "haveCodeTitle": "Have a code?",
+    "codePlaceholder": "Enter the code",
+    "join": "Join",
+    "copyCodeAria": "Copy invite code",
+      "defaults": {
+      "personalHomeName": "My home",
+      "sharedHomeName": "Shared home"
+    },
+    "errors": {
+      "createHomeFailed": "Could not create the home.",
+      "joinHomeFailed": "Could not join the home.",
+      "codeInvalid": "Invalid code.",
+      "codeInactive": "This code is no longer valid. Ask the home owner for a new one."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Hi, {{name}}. Let’s get your home set up.",
+    "cards": {
+      "incomes": { 
+        "title": "Income", 
+        "desc": "Add income and assign it per user.", 
+        "oneOffThisMonth": "One-off this month: {{value}}",
+        "oneOffPanelTitle": "One-offs this month",
+        "oneOffPanelAria": "One-offs this month",
+        "oneOffSharedLabel": "Household",
+        "oneOffPersonalLabel": "You",
+        "addAriaLabel": "Add income",
+        "addTitle": "Add income",
+        "manageAriaLabel": "View incomes",
+        "manageTitle": "View incomes",
+        "needHomeTitle": "You need a home",
+        "emptyHint": "Add your first incomes to see your monthly total.",
+        "emptyHintCta": "Add income"
+      },
+      "expenses": { "title": "Expenses", "desc": "Track expenses and understand spending." },
+      "savings": {
+        "title": "Savings & Investments",
+        "desc": "Set savings and investment goals and track your progress.",
+        "chip": "Planned",
+        "kpiSaved": "Saved",
+        "kpiInvested": "Invested"
+      }
+    },
+    "loading": "Loading home…",
+    "notFound": "Home not found.",
+    "ownerTag": "Owner",
+    "membersCount_one": "{{count}} member",
+    "membersCount_other": "{{count}} members",
+    "members": "Members",
+    "shareHome": "Share home",
+    "personalHomeHint": "This home is personal. Convert it to shared to invite others with a join code.",
+    "convertToShared": "Convert to shared",
+    "joinCode": "Join code",
+    "joinCodeHint": "Share it so someone can join this home.",
+    "kick": "Remove",
+    "membersCount": "{{count}} member",
+    "membersCount_plural": "{{count}} members",
+    "dangerZone": "Danger zone",
+    "leaveHome": "Leave home",
+    "leaveHomeHint": "You will no longer have access to this home's financial data.",
+    "leave": "Leave",
+    "kickConfirmTitle": "Remove member",
+    "kickConfirmDesc": "You are about to remove {{name}} from the home. They will lose access to this home's financial data. Do you want to continue?",
+    "kickConfirmBtn": "Yes, remove",
+    "leaveConfirmTitle": "Leave home",
+    "leaveConfirmAction": "You are about to leave this home",
+    "leaveConfirmConsequence": "You will lose access to the financial data.",
+    "leaveConfirmBtn": "Yes, leave",
+    "rotateCode": "Regenerate code",
+    "rotateCodeTitle": "Regenerate code",
+    "rotateCodeAction": "Do you want to generate a new join code?",
+    "rotateCodeConsequence": "The previous code will stop working. Use this if you shared it by mistake or removed someone from the home."
+  },
+  "incomes": {
+    "create": {
+      "title": "New income",
+      "subtitle": "Add money coming into the household",
+      "amountLabel": "Amount (€)",
+      "amountPlaceholder": "e.g. 1250.00",
+      "sourceLabel": "Source",
+      "sourcePlaceholder": "Salary, transfer, rent…",
+      "frequencyLabel": "Frequency",
+      "dateLabel": "Date",
+      "save": "Save income",
+      "saving": "Saving…",
+      "scopeAria": "Select the income scope",
+      "scopeMeta": "This income will be saved as: {{scope}}",
+      "errors": {
+        "saveFailed": "Could not save the income"
+      },
+      "freq": {
+        "once": { "label": "One-time", "sub": "Single income" },
+        "monthly": { "label": "Monthly", "sub": "Every month" },
+        "quarterly": { "label": "Quarterly", "sub": "Every 3 months" },
+        "yearly": { "label": "Yearly", "sub": "Once a year" }
+      },
+      "scopeLabel": "Scope",
+      "scope": {
+        "shared": "Shared",
+        "personal": "Personal",
+        "sharedHint": "Visible in the home and counted as a shared one-off income.",
+        "personalHint": "Only visible to you and counted as a personal one-off income."
+      }
+    },
+    "edit": {
+      "title": "Edit income",
+      "subtitle": "Update this income",
+      "save": "Save changes"
+    },
+    "manage": {
+      "title": "Incomes",
+      "subtitle": "Recurring first. You can only edit your own.",
+      "recurrentTitle": "Recurring",
+      "oneOffTitle": "One-off",
+      "emptyRecurrent": "No recurring incomes yet.",
+      "emptyOneOff": "No one-off incomes yet.",
+      "you": "You",
+      "edit": "Edit",
+      "delete": "Delete",
+      "onlyYours": "You can only edit your own incomes",
+      "deleteTitle": "Delete income",
+      "deleteDesc": "You are about to delete this income:",
+      "deleteError": "Delete failed",
+      "loadingUsers": "…"
+    }
+  }
+}
