@@ -54,8 +54,8 @@
     "subtitle": "Hola, {{name}}. Vamos a poner tu hogar en orden.",
     "cards": {
       "incomes": {
-        "title": "Ingresos", 
-        "desc": "Añade ingresos y asigna a cada usuario.", 
+        "title": "Ingresos",
+        "desc": "Añade ingresos y asigna a cada usuario.",
         "oneOffThisMonth": "Puntuales este mes: {{value}}",
         "oneOffPanelTitle": "Puntuales este mes",
         "oneOffPanelAria": "Puntuales este mes",
@@ -69,7 +69,10 @@
         "emptyHint": "Añade tus primeros ingresos para ver el total mensual.",
         "emptyHintCta": "Añadir ingreso"
       },
-      "expenses": { "title": "Gastos", "desc": "Registra gastos y analiza en qué se va el dinero." },
+      "expenses": {
+        "title": "Gastos",
+        "desc": "Registra gastos y analiza en qué se va el dinero."
+      },
       "savings": {
         "title": "Ahorro e inversión",
         "desc": "Define objetivos de ahorro e inversión y sigue tu progreso.",
@@ -83,7 +86,7 @@
     "ownerTag": "Propietario",
     "membersCount_one": "{{count}} miembro",
     "membersCount_other": "{{count}} miembros",
-    "members":"Miembros",
+    "members": "Miembros",
     "shareHome": "Compartir hogar",
     "personalHomeHint": "Este hogar es personal. Si lo conviertes a compartido podrás invitar a otras personas con un código.",
     "convertToShared": "Convertir a compartido",
@@ -121,8 +124,15 @@
       "saving": "Guardando…",
       "scopeAria": "Selecciona el ámbito del ingreso",
       "scopeMeta": "Este ingreso se guardará como: {{scope}}",
+      "recurrentAppliesFrom": "Este cambio se aplicará desde el {{date}}.",
+      "recurrentAppliesFromWhy": "Los ingresos recurrentes se aplican por meses completos.",
       "errors": {
-        "saveFailed": "Error al guardar el ingreso"
+        "saveFailed": "Error al guardar el ingreso",
+        "amountRequired": "Introduce un importe.",
+        "amountInvalid": "Formato inválido. Usa 12,34 (máx. 2 decimales).",
+        "amountPositive": "El importe debe ser mayor que 0.",
+        "sourceRequired": "Introduce una procedencia (ej: Nómina).",
+        "sourceTooShort": "Escribe al menos 2 caracteres."
       },
       "freq": {
         "once": { "label": "Puntual", "sub": "Un único ingreso" },

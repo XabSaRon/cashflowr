@@ -1,3 +1,9 @@
+.hmodal__backdrop.hmodal__backdrop--homeDetails {
+  background: rgba(0, 0, 0, 0.74);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+
 .hmodal__backdrop {
   position: fixed;
   inset: 0;
@@ -20,7 +26,11 @@
 
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03)
+  );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
@@ -30,13 +40,12 @@
 .hmodal__scrim {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(1px);
   -webkit-backdrop-filter: blur(1px);
   z-index: 4;
   pointer-events: auto;
 }
-
 
 .hmodal__top {
   display: flex;
@@ -146,7 +155,10 @@
   font-weight: 900;
   flex: 0 0 auto;
 
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.08s ease;
 }
 
 .hmodal__close:hover {
@@ -165,7 +177,12 @@
 
 .hmodal__divider {
   height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0)
+  );
   margin: 6px 0 2px;
 }
 
@@ -186,7 +203,7 @@
   font-weight: 900;
   letter-spacing: 0.2px;
   color: rgba(255, 255, 255, 0.85);
-   margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .hmodal__sectionHead {
@@ -267,7 +284,10 @@
   border-radius: 14px;
   padding: 10px 10px;
 
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .hmodal__member:hover {
@@ -356,7 +376,11 @@
   color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
 
-  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .hmodal__iconBtn:hover:not(:disabled) {
@@ -421,7 +445,9 @@
 }
 
 .hmodal__code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   font-weight: 900;
   letter-spacing: 1px;
   display: block;
@@ -462,7 +488,11 @@
   cursor: pointer;
   white-space: nowrap;
 
-  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .hmodal__btn--compact {
@@ -560,8 +590,8 @@
   opacity: 0.8;
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.12),
-    rgba(255,255,255,0)
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0)
   );
 }

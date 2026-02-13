@@ -1,4 +1,4 @@
-.hmodal__backdrop.hmodal__backdrop--incomeCreate{
+.hmodal__backdrop.hmodal__backdrop--incomeCreate {
   background: rgba(0, 0, 0, 0.74);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
@@ -46,7 +46,10 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .imodal__close:hover {
@@ -70,7 +73,7 @@
 .imodal__body {
   padding: 14px 18px 18px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .imodal__field {
@@ -92,7 +95,10 @@
   background: rgba(255, 255, 255, 0.06);
   color: inherit;
   padding: 0 12px;
-  transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease,
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    transform 0.12s ease,
     box-shadow 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -138,7 +144,10 @@
   color: inherit;
   font-weight: 800;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.12s ease;
 }
 
 .itoggle__opt:hover {
@@ -179,7 +188,10 @@
   color: inherit;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease,
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease,
     opacity 0.12s ease;
 }
 
@@ -195,10 +207,30 @@
 .imodal__btn:not(.ghost) {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.22),
-    rgba(255, 255, 255, 0.12)
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.14)
   );
   border-color: rgba(255, 255, 255, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.imodal__btn:not(.ghost)::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.22),
+    transparent 55%
+  );
+  transform: translateX(-30%);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.imodal__btn:not(.ghost):hover::after {
+  opacity: 1;
 }
 
 .imodal__btn.ghost {
@@ -206,9 +238,11 @@
 }
 
 .imodal__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+  opacity: 1;
+  color: rgba(229, 231, 235, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
 }
 
 /* =========================
@@ -233,7 +267,10 @@
   gap: 10px;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease,
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    box-shadow 0.12s ease,
     transform 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -316,7 +353,10 @@
   cursor: pointer;
   text-align: left;
 
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.12s ease;
 }
 
 .iselect__opt:hover {
@@ -386,7 +426,10 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease,
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    box-shadow 0.12s ease,
     transform 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -416,6 +459,18 @@
   opacity: 0.75;
 }
 
+.idate__hint {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.35;
+}
+.idate__hint2 {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.75;
+}
+
 /* =========================
    Desktop Popover
    ========================= */
@@ -439,7 +494,7 @@
   overflow: visible;
   --rdp-cell-size: 38px;
   --rdp-accent-color: rgba(255, 255, 255, 0.18);
-  --rdp-background-color: rgba(255, 255, 255, 0.10);
+  --rdp-background-color: rgba(255, 255, 255, 0.1);
   margin: 0;
   color: inherit;
 }
@@ -516,6 +571,15 @@
 
 .idate__action.ghost {
   background: transparent;
+}
+
+.iselect__btn:disabled,
+.idate__btn:disabled,
+.itoggle__opt:disabled,
+.imodal__close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* =========================
@@ -659,7 +723,7 @@
 }
 
 .iscope__pill.shared {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -679,14 +743,73 @@
   animation: scopeFlash 0.7s ease-out;
 }
 
+/* ===== Field errors ===== */
+.ifield__error {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.25;
+  color: rgba(255, 120, 120, 0.95);
+}
+
+.imodal__field.is-invalid input {
+  border-color: rgba(255, 80, 80, 0.55);
+  background: rgba(255, 80, 80, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 80, 80, 0.1);
+}
+
+.imodal__field.is-invalid input:focus {
+  border-color: rgba(255, 80, 80, 0.65);
+  box-shadow: 0 0 0 4px rgba(255, 80, 80, 0.16);
+}
+
 /* =========================
    Animations
    ========================= */
 
 @keyframes scopeFlash {
-  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0); }
-  30% { box-shadow: 0 0 0 6px rgba(255,255,255,0.08); }
-  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  30% {
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
+  transform: translateY(8px) scale(0.985);
+  opacity: 0;
+  transition:
+    transform 140ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 140ms ease;
+  will-change: transform, opacity;
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate.is-open .hmodal__panel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hmodal__backdrop.hmodal__backdrop--incomeCreate,
+  .hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
 
 /* =========================

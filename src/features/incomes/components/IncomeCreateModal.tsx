@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { IncomeFrequency, IncomeScope } from "../api/incomes.service";
-import { addIncome, updateIncome } from "../api/incomes.service";
+import {
+  addIncome,
+  overwriteIncome,
+  splitIncomeChange,
+} from "../api/incomes.service";
 
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -37,6 +41,27 @@ function dateFromIncomeDate(v: unknown): Date | null {
   return null;
 }
 
+function normalizeAmountInput(raw: string) {
+  return raw.replace(/\s/g, "").replace(",", ".");
+}
+
+function isValidAmountText(raw: string) {
+  const v = normalizeAmountInput(raw);
+  if (!v) return false;
+  return /^(?:\d+)(?:\.\d{1,2})?$/.test(v);
+}
+
+function validateSource(source: string): "required" | "tooShort" | null {
+  const s = source.trim();
+  if (!s) return "required";
+  if (s.length < 2) return "tooShort";
+  return null;
+}
+
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
 export type IncomeInitial = {
   id: string;
   amountCents: number;
@@ -44,6 +69,8 @@ export type IncomeInitial = {
   frequency: IncomeFrequency;
   scope: IncomeScope;
   date: Timestamp | Date | string;
+  endDate?: Timestamp | Date | string | null;
+  groupId?: string | null;
   createdByUid: string;
 };
 
@@ -88,6 +115,30 @@ export function IncomeCreateModal(props: {
     return window.matchMedia("(max-width: 560px)").matches;
   });
 
+  const [mounted, setMounted] = useState(false);
+  const [show, setShow] = useState(false);
+
+  const sourceErrHard = useMemo(() => validateSource(source), [source]);
+  const [touched, setTouched] = useState<{ amount: boolean; source: boolean }>({
+    amount: false,
+    source: false,
+  });
+
+  const selectedDateObj = useMemo(() => parseISO(date), [date]);
+  const dateLabel = useMemo(
+    () => format(selectedDateObj, "dd/MM/yyyy"),
+    [selectedDateObj],
+  );
+
+  const isRecurrent = frequency !== "once";
+  const effectiveStartObj = useMemo(() => {
+    return isRecurrent ? startOfMonth(selectedDateObj) : selectedDateObj;
+  }, [isRecurrent, selectedDateObj]);
+
+  const effectiveStartLabel = useMemo(() => {
+    return format(effectiveStartObj, "dd/MM/yyyy");
+  }, [effectiveStartObj]);
+
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 560px)");
     const onChange = (e?: MediaQueryListEvent) => {
@@ -102,11 +153,45 @@ export function IncomeCreateModal(props: {
     };
   }, []);
 
-  const frequencyOptions: Array<{ value: IncomeFrequency; label: string; sub?: string }> = [
-    { value: "once", label: t("incomes.create.freq.once.label"), sub: t("incomes.create.freq.once.sub") },
-    { value: "monthly", label: t("incomes.create.freq.monthly.label"), sub: t("incomes.create.freq.monthly.sub") },
-    { value: "quarterly", label: t("incomes.create.freq.quarterly.label"), sub: t("incomes.create.freq.quarterly.sub") },
-    { value: "yearly", label: t("incomes.create.freq.yearly.label"), sub: t("incomes.create.freq.yearly.sub") },
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setShow(true));
+      });
+    } else {
+      setShow(false);
+      const tid = window.setTimeout(() => setMounted(false), 140);
+      return () => window.clearTimeout(tid);
+    }
+  }, [open]);
+
+  const frequencyOptions: Array<{
+    value: IncomeFrequency;
+    label: string;
+    sub?: string;
+  }> = [
+    {
+      value: "once",
+      label: t("incomes.create.freq.once.label"),
+      sub: t("incomes.create.freq.once.sub"),
+    },
+    {
+      value: "monthly",
+      label: t("incomes.create.freq.monthly.label"),
+      sub: t("incomes.create.freq.monthly.sub"),
+    },
+    {
+      value: "quarterly",
+      label: t("incomes.create.freq.quarterly.label"),
+      sub: t("incomes.create.freq.quarterly.sub"),
+    },
+    {
+      value: "yearly",
+      label: t("incomes.create.freq.yearly.label"),
+      sub: t("incomes.create.freq.yearly.sub"),
+    },
   ];
 
   const selectedFreq =
@@ -119,10 +204,13 @@ export function IncomeCreateModal(props: {
     setError(null);
     setFreqOpen(false);
     setDateOpen(false);
+    setTouched({ amount: false, source: false });
 
     if (initialIncome) {
       const d = dateFromIncomeDate(initialIncome.date) ?? new Date();
-      setAmount(String((initialIncome.amountCents ?? 0) / 100).replace(".", ","));
+      setAmount(
+        String((initialIncome.amountCents ?? 0) / 100).replace(".", ","),
+      );
       setSource(initialIncome.source ?? "");
       setFrequency(initialIncome.frequency ?? "monthly");
       setScope(initialIncome.scope ?? "shared");
@@ -179,7 +267,8 @@ export function IncomeCreateModal(props: {
       };
 
       const popH = pop.offsetHeight;
-      const wouldBottomCut = rect.bottom + gap + popH > window.innerHeight - margin;
+      const wouldBottomCut =
+        rect.bottom + gap + popH > window.innerHeight - margin;
       if (wouldBottomCut) {
         style = {
           position: "absolute",
@@ -226,15 +315,15 @@ export function IncomeCreateModal(props: {
     const tid = window.setTimeout(() => setScopeFlash(false), 700);
 
     requestAnimationFrame(() => {
-      scopeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      scopeRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
       scopeRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
     });
 
     return () => window.clearTimeout(tid);
   }, [frequency]);
-
-  const selectedDateObj = useMemo(() => parseISO(date), [date]);
-  const dateLabel = useMemo(() => format(selectedDateObj, "dd/MM/yyyy"), [selectedDateObj]);
 
   const [month, setMonth] = useState<Date>(() => selectedDateObj);
   useEffect(() => {
@@ -242,19 +331,45 @@ export function IncomeCreateModal(props: {
     setMonth(selectedDateObj);
   }, [dateOpen, selectedDateObj]);
 
-  const amountCents = useMemo(() => {
-    const normalized = amount.replace(",", ".").trim();
-    const value = Number(normalized);
-    if (!Number.isFinite(value) || value <= 0) return null;
-    return Math.round(value * 100);
-  }, [amount]);
-
   const canEditThis = useMemo(() => {
     if (!initialIncome) return true;
     return initialIncome.createdByUid === currentUid;
   }, [initialIncome, currentUid]);
 
-   useEffect(() => {
+  const amountCents = useMemo(() => {
+    if (!isValidAmountText(amount)) return null;
+    const n = Number(normalizeAmountInput(amount));
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return Math.round(n * 100);
+  }, [amount]);
+
+  const amountError = useMemo(() => {
+    if (!canEditThis) return null;
+    if (!touched.amount) return null;
+    const raw = amount.trim();
+    if (!raw) return t("incomes.create.errors.amountRequired");
+    if (!isValidAmountText(raw))
+      return t("incomes.create.errors.amountInvalid");
+    const n = Number(normalizeAmountInput(raw));
+    if (!Number.isFinite(n) || n <= 0)
+      return t("incomes.create.errors.amountPositive");
+    return null;
+  }, [amount, touched.amount, t, canEditThis]);
+
+  const sourceErrCode = useMemo(() => {
+    if (!canEditThis) return null;
+    if (!touched.source) return null;
+    return validateSource(source);
+  }, [source, touched.source, canEditThis]);
+
+  const sourceError = useMemo(() => {
+    if (!sourceErrCode) return null;
+    if (sourceErrCode === "required")
+      return t("incomes.create.errors.sourceRequired");
+    return t("incomes.create.errors.sourceTooShort");
+  }, [sourceErrCode, t]);
+
+  useEffect(() => {
     if (!canEditThis) {
       setFreqOpen(false);
       setDateOpen(false);
@@ -262,10 +377,17 @@ export function IncomeCreateModal(props: {
   }, [canEditThis]);
 
   const canSave =
-    !!homeId && !!amountCents && source.trim().length >= 2 && !busy && canEditThis;
+    !!homeId &&
+    canEditThis &&
+    !busy &&
+    !!amountCents &&
+    !amountError &&
+    !sourceErrHard;
 
   const scopeLabel =
-    scope === "shared" ? t("incomes.create.scope.shared") : t("incomes.create.scope.personal");
+    scope === "shared"
+      ? t("incomes.create.scope.shared")
+      : t("incomes.create.scope.personal");
 
   const saveLabel = busy
     ? t("incomes.create.saving")
@@ -276,58 +398,124 @@ export function IncomeCreateModal(props: {
         : t("incomes.create.save");
 
   async function onSave() {
-    if (!canSave || !homeId || !amountCents) return;
+    setTouched({ amount: true, source: true });
+
+    if (!homeId || !canEditThis) return;
+
+    if (validateSource(source)) return;
+    if (!amountCents) return;
+
+    if (!canSave) return;
     if (initialIncome && !canEditThis) return;
 
     try {
       setBusy(true);
       setError(null);
 
-      const payload = {
-        homeId,
-        amountCents,
-        source,
-        frequency,
-        scope,
-        date: new Date(date + "T00:00:00"),
-      };
+      let startDate = new Date(date + "T00:00:00");
 
       if (initialIncome) {
-        await updateIncome({
-          ...payload,
-          incomeId: initialIncome.id,
-        });
+        const isRecurrent = frequency !== "once";
+        const oldWasRecurrent = initialIncome.frequency !== "once";
+
+        const oldStartRaw = dateFromIncomeDate(initialIncome.date);
+
+        if (isRecurrent || oldWasRecurrent) {
+          // ✅ Opción A: los cambios de recurrentes aplican desde el 1 del mes
+          startDate = startOfMonth(startDate);
+
+          const oldStart = oldStartRaw ? startOfMonth(oldStartRaw) : null;
+
+          // Solo splitea si es un mes posterior
+          const canSplit =
+            !!oldStart && startDate.getTime() > oldStart.getTime();
+
+          if (canSplit) {
+            await splitIncomeChange({
+              homeId,
+              oldIncomeId: initialIncome.id,
+              oldCreatedByUid: initialIncome.createdByUid,
+              oldGroupId: initialIncome.groupId ?? null,
+              newStartDate: startDate, // <- ya es 1 de mes
+              amountCents,
+              source,
+              frequency,
+              scope,
+              currentUid,
+            });
+          } else {
+            await overwriteIncome({
+              homeId,
+              incomeId: initialIncome.id,
+              amountCents,
+              source,
+              frequency,
+              scope,
+              date: startDate, // <- ya es 1 de mes
+              groupId: initialIncome.groupId ?? null,
+              endDate: null,
+            });
+          }
+        } else {
+          await overwriteIncome({
+            homeId,
+            incomeId: initialIncome.id,
+            amountCents,
+            source,
+            frequency,
+            scope,
+            date: startDate,
+          });
+        }
       } else {
         await addIncome({
-          ...payload,
+          homeId,
+          amountCents,
+          source,
+          frequency,
+          scope,
+          date: startDate,
           createdByUid: currentUid,
         });
       }
 
       onClose();
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : t("incomes.create.errors.saveFailed");
+      const message =
+        e instanceof Error ? e.message : t("incomes.create.errors.saveFailed");
       setError(message);
     } finally {
       setBusy(false);
     }
   }
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
-    <div className="hmodal__backdrop hmodal__backdrop--incomeCreate" role="dialog" aria-modal="true">
+    <div
+      className={`hmodal__backdrop hmodal__backdrop--incomeCreate ${show ? "is-open" : ""}`}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="hmodal__panel">
         <div className="imodal__head">
           <div>
             <div className="imodal__title">
-              {initialIncome ? t("incomes.edit.title") : t("incomes.create.title")}
+              {initialIncome
+                ? t("incomes.edit.title")
+                : t("incomes.create.title")}
             </div>
             <div className="imodal__sub">
-              {initialIncome ? t("incomes.edit.subtitle") : t("incomes.create.subtitle")}
+              {initialIncome
+                ? t("incomes.edit.subtitle")
+                : t("incomes.create.subtitle")}
             </div>
           </div>
-          <button className="imodal__close" onClick={onClose} aria-label={t("common.cancel")}>
+          <button
+            className="imodal__close"
+            onClick={onClose}
+            aria-label={t("common.cancel")}
+          >
             ✕
           </button>
         </div>
@@ -337,25 +525,43 @@ export function IncomeCreateModal(props: {
             <div className="imodal__error">{t("incomes.edit.notAllowed")}</div>
           )}
 
-          <label className="imodal__field">
+          {/* AMOUNT */}
+          <label className={`imodal__field ${amountError ? "is-invalid" : ""}`}>
             <span>{t("incomes.create.amountLabel")}</span>
             <input
               value={amount}
               disabled={!canEditThis}
               onChange={(e) => setAmount(e.target.value)}
+              onBlur={() => setTouched((p) => ({ ...p, amount: true }))}
               inputMode="decimal"
               placeholder={t("incomes.create.amountPlaceholder")}
+              aria-invalid={!!amountError}
+              aria-describedby={amountError ? "amount-error" : undefined}
             />
+            {amountError && (
+              <div id="amount-error" className="ifield__error">
+                {amountError}
+              </div>
+            )}
           </label>
 
-          <label className="imodal__field">
+          {/* SOURCE */}
+          <label className={`imodal__field ${sourceError ? "is-invalid" : ""}`}>
             <span>{t("incomes.create.sourceLabel")}</span>
             <input
               value={source}
               disabled={!canEditThis}
               onChange={(e) => setSource(e.target.value)}
+              onBlur={() => setTouched((p) => ({ ...p, source: true }))}
               placeholder={t("incomes.create.sourcePlaceholder")}
+              aria-invalid={!!sourceError}
+              aria-describedby={sourceError ? "source-error" : undefined}
             />
+            {sourceError && (
+              <div id="source-error" className="ifield__error">
+                {sourceError}
+              </div>
+            )}
           </label>
 
           <div className="imodal__row">
@@ -371,12 +577,16 @@ export function IncomeCreateModal(props: {
                   disabled={!canEditThis}
                   aria-expanded={freqOpen}
                   onClick={() => {
-                   if (!canEditThis) return;
-                   setFreqOpen((v) => !v);
+                    if (!canEditThis) return;
+                    setFreqOpen((v) => !v);
                   }}
                   onKeyDown={(e) => {
                     if (!canEditThis) return;
-                    if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+                    if (
+                      e.key === "ArrowDown" ||
+                      e.key === "Enter" ||
+                      e.key === " "
+                    ) {
                       e.preventDefault();
                       setFreqOpen(true);
                     }
@@ -384,7 +594,9 @@ export function IncomeCreateModal(props: {
                 >
                   <div className="iselect__main">
                     <div className="iselect__label">{selectedFreq.label}</div>
-                    {selectedFreq.sub && <div className="iselect__sub">{selectedFreq.sub}</div>}
+                    {selectedFreq.sub && (
+                      <div className="iselect__sub">{selectedFreq.sub}</div>
+                    )}
                   </div>
                   <span className="iselect__chev" aria-hidden>
                     ▾
@@ -392,7 +604,11 @@ export function IncomeCreateModal(props: {
                 </button>
 
                 {freqOpen && (
-                  <div className="iselect__menu" role="listbox" aria-label={t("incomes.create.frequencyLabel")}>
+                  <div
+                    className="iselect__menu"
+                    role="listbox"
+                    aria-label={t("incomes.create.frequencyLabel")}
+                  >
                     {frequencyOptions.map((opt) => {
                       const active = opt.value === frequency;
                       return (
@@ -413,7 +629,9 @@ export function IncomeCreateModal(props: {
                           }}
                         >
                           <div className="iselect__optTitle">{opt.label}</div>
-                          {opt.sub && <div className="iselect__optSub">{opt.sub}</div>}
+                          {opt.sub && (
+                            <div className="iselect__optSub">{opt.sub}</div>
+                          )}
                           {active && <span className="iselect__tick">✓</span>}
                         </button>
                       );
@@ -453,9 +671,14 @@ export function IncomeCreateModal(props: {
                       aria-label={t("incomes.create.dateLabel")}
                       onClick={() => setDateOpen(false)}
                     >
-                      <div className="idateSheet" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="idateSheet"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="idateSheet__head">
-                          <div className="idateSheet__title">{t("incomes.create.dateLabel")}</div>
+                          <div className="idateSheet__title">
+                            {t("incomes.create.dateLabel")}
+                          </div>
                           <button
                             type="button"
                             className="idateSheet__close"
@@ -567,7 +790,11 @@ export function IncomeCreateModal(props: {
                         >
                           {t("common.today")}
                         </button>
-                        <button type="button" className="idate__action ghost" onClick={() => setDateOpen(false)}>
+                        <button
+                          type="button"
+                          className="idate__action ghost"
+                          onClick={() => setDateOpen(false)}
+                        >
                           {t("common.close")}
                         </button>
                       </div>
@@ -577,6 +804,17 @@ export function IncomeCreateModal(props: {
             </div>
           </div>
 
+          {isRecurrent && selectedDateObj.getDate() !== 1 && (
+            <div className="idate__hint">
+              {t("incomes.create.recurrentAppliesFrom", {
+                date: effectiveStartLabel,
+              })}
+              <span className="idate__hint2">
+                {t("incomes.create.recurrentAppliesFromWhy")}
+              </span>
+            </div>
+          )}
+
           {frequency === "once" && (
             <div
               ref={scopeRef}
@@ -585,7 +823,9 @@ export function IncomeCreateModal(props: {
               aria-label={t("incomes.create.scopeAria")}
             >
               <div className="iscope__top">
-                <span className="iscope__label">{t("incomes.create.scopeLabel")}</span>
+                <span className="iscope__label">
+                  {t("incomes.create.scopeLabel")}
+                </span>
                 <span className={`iscope__pill ${scope}`}>{scopeLabel}</span>
               </div>
 
@@ -610,10 +850,14 @@ export function IncomeCreateModal(props: {
               </div>
 
               <div className="itoggle__hint">
-                {scope === "shared" ? t("incomes.create.scope.sharedHint") : t("incomes.create.scope.personalHint")}
+                {scope === "shared"
+                  ? t("incomes.create.scope.sharedHint")
+                  : t("incomes.create.scope.personalHint")}
               </div>
 
-              <div className="iscope__meta">{t("incomes.create.scopeMeta", { scope: scopeLabel })}</div>
+              <div className="iscope__meta">
+                {t("incomes.create.scopeMeta", { scope: scopeLabel })}
+              </div>
             </div>
           )}
 
@@ -621,7 +865,11 @@ export function IncomeCreateModal(props: {
         </div>
 
         <div className="imodal__footer">
-          <button className="imodal__btn ghost" onClick={onClose} disabled={busy}>
+          <button
+            className="imodal__btn ghost"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("common.cancel")}
           </button>
           <button className="imodal__btn" onClick={onSave} disabled={!canSave}>

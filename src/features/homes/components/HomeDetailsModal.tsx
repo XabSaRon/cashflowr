@@ -59,14 +59,17 @@ export function HomeDetailsModal(props: {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [showAllMembers, setShowAllMembers] = useState(false);
-  const [kickTarget, setKickTarget] = useState<{ uid: string; label: string } | null>(null);
+  const [kickTarget, setKickTarget] = useState<{
+    uid: string;
+    label: string;
+  } | null>(null);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [rotateConfirmOpen, setRotateConfirmOpen] = useState(false);
 
   const isOwner = !!home?.ownerUid && home.ownerUid === currentUid;
   const isConfirmOpen = !!kickTarget || leaveConfirmOpen || rotateConfirmOpen;
-  const isBusyConfirm = busy === "kick-confirm" || busy === "leave" || busy === "rotate";
-
+  const isBusyConfirm =
+    busy === "kick-confirm" || busy === "leave" || busy === "rotate";
 
   useEffect(() => {
     if (!open) return;
@@ -101,12 +104,16 @@ export function HomeDetailsModal(props: {
   const title = loadingHome ? "…" : (home?.name ?? t("dashboard.notFound"));
 
   const members = useMemo(() => {
-    const sorted = [...membersPreview].sort((a, b) => (a.role === b.role ? 0 : a.role === "owner" ? -1 : 1));
+    const sorted = [...membersPreview].sort((a, b) =>
+      a.role === b.role ? 0 : a.role === "owner" ? -1 : 1,
+    );
     return sorted;
   }, [membersPreview]);
 
   const hasMoreMembers = members.length > MEMBERS_PREVIEW_LIMIT;
-  const visibleMembers = showAllMembers ? members : members.slice(0, MEMBERS_PREVIEW_LIMIT);
+  const visibleMembers = showAllMembers
+    ? members
+    : members.slice(0, MEMBERS_PREVIEW_LIMIT);
 
   async function copyJoinCode() {
     if (!joinCode) return;
@@ -142,7 +149,7 @@ export function HomeDetailsModal(props: {
 
   return (
     <div
-      className="hmodal__backdrop"
+      className="hmodal__backdrop hmodal__backdrop--homeDetails"
       onClick={() => {
         if (isBusyConfirm) return;
         if (isConfirmOpen) return;
@@ -160,11 +167,17 @@ export function HomeDetailsModal(props: {
 
             <div className="hmodal__metaRow">
               {home?.type ? (
-                <span className={`hmodal__pill ${home.type === "shared" ? "is-shared" : "is-personal"}`}>
+                <span
+                  className={`hmodal__pill ${home.type === "shared" ? "is-shared" : "is-personal"}`}
+                >
                   <span className="hmodal__pillIcon" aria-hidden="true">
                     {home.type === "shared" ? <IconUsers /> : <IconHome />}
                   </span>
-                  <span>{home.type === "shared" ? t("onboarding.shared") : t("onboarding.personal")}</span>
+                  <span>
+                    {home.type === "shared"
+                      ? t("onboarding.shared")
+                      : t("onboarding.personal")}
+                  </span>
                 </span>
               ) : null}
 
@@ -174,7 +187,9 @@ export function HomeDetailsModal(props: {
                 <span className="hmodal__pillIcon" aria-hidden="true">
                   <IconUser />
                 </span>
-                <span>{t("dashboard.membersCount", { count: membersCount })}</span>
+                <span>
+                  {t("dashboard.membersCount", { count: membersCount })}
+                </span>
               </span>
             </div>
           </div>
@@ -197,7 +212,9 @@ export function HomeDetailsModal(props: {
         {/* Section: Members */}
         <div className="hmodal__section hmodal__section--first">
           <div className="hmodal__sectionHead">
-            <div className="hmodal__sectionTitle">{t("dashboard.members") ?? "Miembros"}</div>
+            <div className="hmodal__sectionTitle">
+              {t("dashboard.members") ?? "Miembros"}
+            </div>
 
             {hasMoreMembers ? (
               <button
@@ -208,8 +225,9 @@ export function HomeDetailsModal(props: {
               >
                 {showAllMembers
                   ? (t("common.showLess") ?? "Ver menos")
-                  : (t("common.showMoreCount", { count: members.length - MEMBERS_PREVIEW_LIMIT }) ??
-                    `Ver ${members.length - MEMBERS_PREVIEW_LIMIT} más`)}
+                  : (t("common.showMoreCount", {
+                      count: members.length - MEMBERS_PREVIEW_LIMIT,
+                    }) ?? `Ver ${members.length - MEMBERS_PREVIEW_LIMIT} más`)}
               </button>
             ) : null}
           </div>
@@ -217,11 +235,20 @@ export function HomeDetailsModal(props: {
           <div className="hmodal__members">
             {visibleMembers.map((m) => {
               const u = memberUsers[m.uid];
-              const label = u?.displayName ?? u?.email ?? `${m.uid.slice(0, 6)}…`;
-              const secondary = u?.email ?? (u?.displayName ? `${m.uid.slice(0, 6)}…` : "");
-              const initial = (u?.displayName ?? u?.email ?? "?").trim().charAt(0).toUpperCase();
+              const label =
+                u?.displayName ?? u?.email ?? `${m.uid.slice(0, 6)}…`;
+              const secondary =
+                u?.email ?? (u?.displayName ? `${m.uid.slice(0, 6)}…` : "");
+              const initial = (u?.displayName ?? u?.email ?? "?")
+                .trim()
+                .charAt(0)
+                .toUpperCase();
 
-              const canKick = isOwner && m.uid !== currentUid && m.role !== "owner" && !!onRemoveMember;
+              const canKick =
+                isOwner &&
+                m.uid !== currentUid &&
+                m.role !== "owner" &&
+                !!onRemoveMember;
 
               return (
                 <div key={m.uid} className="hmodal__member">
@@ -243,11 +270,15 @@ export function HomeDetailsModal(props: {
                     <div className="hmodal__memberName">
                       <span className="hmodal__nameEllip">{label}</span>
                       {m.role === "owner" ? (
-                        <span className="hmodal__roleTag">{t("dashboard.ownerTag") ?? "Propietario"}</span>
+                        <span className="hmodal__roleTag">
+                          {t("dashboard.ownerTag") ?? "Propietario"}
+                        </span>
                       ) : null}
                     </div>
 
-                    {secondary ? <div className="hmodal__memberSub">{secondary}</div> : null}
+                    {secondary ? (
+                      <div className="hmodal__memberSub">{secondary}</div>
+                    ) : null}
                   </div>
 
                   {canKick ? (
@@ -261,7 +292,9 @@ export function HomeDetailsModal(props: {
                       title={t("dashboard.kick") ?? "Expulsar"}
                       aria-label="Remove member"
                     >
-                      {busy === "kick-confirm" && kickTarget?.uid === m.uid ? "…" : "⨯"}
+                      {busy === "kick-confirm" && kickTarget?.uid === m.uid
+                        ? "…"
+                        : "⨯"}
                     </button>
                   ) : (
                     <span className="hmodal__spacer" />
@@ -275,7 +308,9 @@ export function HomeDetailsModal(props: {
         {/* Section: Convert personal -> shared */}
         {home?.type === "personal" && isOwner ? (
           <div className="hmodal__section">
-            <div className="hmodal__sectionTitle">{t("dashboard.shareHome") ?? "Compartir hogar"}</div>
+            <div className="hmodal__sectionTitle">
+              {t("dashboard.shareHome") ?? "Compartir hogar"}
+            </div>
 
             <div className="hmodal__ctaBox">
               <div className="hmodal__hint">
@@ -286,9 +321,17 @@ export function HomeDetailsModal(props: {
               <button
                 className="hmodal__btn hmodal__btn--primary"
                 onClick={handleConvertToShared}
-                disabled={!homeId || busy === "convert" || isConfirmOpen || isBusyConfirm}
+                disabled={
+                  !homeId ||
+                  busy === "convert" ||
+                  isConfirmOpen ||
+                  isBusyConfirm
+                }
               >
-                {busy === "convert" ? "…" : (t("dashboard.convertToShared") ?? "Convertir a compartido")}
+                {busy === "convert"
+                  ? "…"
+                  : (t("dashboard.convertToShared") ??
+                    "Convertir a compartido")}
               </button>
             </div>
           </div>
@@ -297,7 +340,9 @@ export function HomeDetailsModal(props: {
         {/* Section: Join code */}
         {home?.type === "shared" && joinCode ? (
           <div className="hmodal__section">
-            <div className="hmodal__sectionTitle">{t("dashboard.joinCode") ?? "Código para unirse"}</div>
+            <div className="hmodal__sectionTitle">
+              {t("dashboard.joinCode") ?? "Código para unirse"}
+            </div>
 
             <div className="hmodal__codeRow">
               <div className="hmodal__codeBox" aria-label="Join code">
@@ -321,12 +366,15 @@ export function HomeDetailsModal(props: {
                 onClick={copyJoinCode}
                 disabled={isConfirmOpen || isBusyConfirm}
               >
-                {copied ? (t("common.copied") ?? "Copiado ✅") : (t("common.copy") ?? "Copiar")}
+                {copied
+                  ? (t("common.copied") ?? "Copiado ✅")
+                  : (t("common.copy") ?? "Copiar")}
               </button>
             </div>
 
             <div className="hmodal__hint">
-              {t("dashboard.joinCodeHint") ?? "Compártelo con alguien para que se una a este hogar."}
+              {t("dashboard.joinCodeHint") ??
+                "Compártelo con alguien para que se una a este hogar."}
             </div>
           </div>
         ) : null}
@@ -334,13 +382,18 @@ export function HomeDetailsModal(props: {
         {/* Section: Danger zone */}
         {onLeaveHome && !isOwner ? (
           <div className="hmodal__section dangerZone">
-            <div className="hmodal__sectionTitle dangerTitle">{t("dashboard.dangerZone") ?? "Zona peligrosa"}</div>
+            <div className="hmodal__sectionTitle dangerTitle">
+              {t("dashboard.dangerZone") ?? "Zona peligrosa"}
+            </div>
 
             <div className="hmodal__dangerRow">
               <div className="hmodal__dangerText">
-                <div className="hmodal__dangerMain">{t("dashboard.leaveHome") ?? "Salir del hogar"}</div>
+                <div className="hmodal__dangerMain">
+                  {t("dashboard.leaveHome") ?? "Salir del hogar"}
+                </div>
                 <div className="hmodal__dangerSub">
-                  {t("dashboard.leaveHomeHint") ?? "Dejarás de ver las tareas y recompensas de este hogar."}
+                  {t("dashboard.leaveHomeHint") ??
+                    "Dejarás de ver las tareas y recompensas de este hogar."}
                 </div>
               </div>
 
@@ -360,7 +413,9 @@ export function HomeDetailsModal(props: {
         ) : null}
 
         {/* SCRIM interno */}
-        {(kickTarget || leaveConfirmOpen || rotateConfirmOpen) ? <div className="hmodal__scrim" /> : null}
+        {kickTarget || leaveConfirmOpen || rotateConfirmOpen ? (
+          <div className="hmodal__scrim" />
+        ) : null}
 
         {/* CONFIRM INLINE */}
         <ConfirmModal
@@ -373,7 +428,9 @@ export function HomeDetailsModal(props: {
                 <div className="cmodal__descMain">
                   {t("dashboard.kickConfirmAction", { name: kickTarget.label })}
                 </div>
-                <div className="cmodal__descSub">{t("dashboard.kickConfirmConsequence")}</div>
+                <div className="cmodal__descSub">
+                  {t("dashboard.kickConfirmConsequence")}
+                </div>
               </>
             ) : undefined
           }
@@ -436,11 +493,15 @@ export function HomeDetailsModal(props: {
           title={t("dashboard.rotateCodeTitle")}
           description={
             <div className="rotateCodeConfirm">
-              <div className="cmodal__descMain">{t("dashboard.rotateCodeAction")}</div>
+              <div className="cmodal__descMain">
+                {t("dashboard.rotateCodeAction")}
+              </div>
 
               <div className="rotateCodeConfirm__divider" />
 
-              <div className="cmodal__descSub">{t("dashboard.rotateCodeConsequence")}</div>
+              <div className="cmodal__descSub">
+                {t("dashboard.rotateCodeConsequence")}
+              </div>
             </div>
           }
           cancelText={t("common.cancel")}
@@ -461,7 +522,6 @@ export function HomeDetailsModal(props: {
             }
           }}
         />
-
       </div>
     </div>
   );

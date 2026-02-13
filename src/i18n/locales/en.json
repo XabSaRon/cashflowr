@@ -38,7 +38,7 @@
     "codePlaceholder": "Enter the code",
     "join": "Join",
     "copyCodeAria": "Copy invite code",
-      "defaults": {
+    "defaults": {
       "personalHomeName": "My home",
       "sharedHomeName": "Shared home"
     },
@@ -53,9 +53,9 @@
     "title": "Dashboard",
     "subtitle": "Hi, {{name}}. Let’s get your home set up.",
     "cards": {
-      "incomes": { 
-        "title": "Income", 
-        "desc": "Add income and assign it per user.", 
+      "incomes": {
+        "title": "Income",
+        "desc": "Add income and assign it per user.",
         "oneOffThisMonth": "One-off this month: {{value}}",
         "oneOffPanelTitle": "One-offs this month",
         "oneOffPanelAria": "One-offs this month",
@@ -69,7 +69,10 @@
         "emptyHint": "Add your first incomes to see your monthly total.",
         "emptyHintCta": "Add income"
       },
-      "expenses": { "title": "Expenses", "desc": "Track expenses and understand spending." },
+      "expenses": {
+        "title": "Expenses",
+        "desc": "Track expenses and understand spending."
+      },
       "savings": {
         "title": "Savings & Investments",
         "desc": "Set savings and investment goals and track your progress.",
@@ -122,8 +125,15 @@
       "saving": "Saving…",
       "scopeAria": "Select the income scope",
       "scopeMeta": "This income will be saved as: {{scope}}",
+      "recurrentAppliesFrom": "This change will apply starting {{date}}.",
+      "recurrentAppliesFromWhy": "Recurring incomes apply to full calendar months.",
       "errors": {
-        "saveFailed": "Could not save the income"
+        "saveFailed": "Could not save the income",
+        "amountRequired": "Please enter an amount.",
+        "amountInvalid": "Invalid format. Use 12.34 (max. 2 decimals).",
+        "amountPositive": "The amount must be greater than 0.",
+        "sourceRequired": "Please enter a source (e.g. Salary).",
+        "sourceTooShort": "Enter at least 2 characters."
       },
       "freq": {
         "once": { "label": "One-time", "sub": "Single income" },
