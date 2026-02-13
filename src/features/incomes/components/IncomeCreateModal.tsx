@@ -421,12 +421,10 @@ export function IncomeCreateModal(props: {
         const oldStartRaw = dateFromIncomeDate(initialIncome.date);
 
         if (isRecurrent || oldWasRecurrent) {
-          // ✅ Opción A: los cambios de recurrentes aplican desde el 1 del mes
           startDate = startOfMonth(startDate);
 
           const oldStart = oldStartRaw ? startOfMonth(oldStartRaw) : null;
 
-          // Solo splitea si es un mes posterior
           const canSplit =
             !!oldStart && startDate.getTime() > oldStart.getTime();
 
@@ -434,9 +432,8 @@ export function IncomeCreateModal(props: {
             await splitIncomeChange({
               homeId,
               oldIncomeId: initialIncome.id,
-              oldCreatedByUid: initialIncome.createdByUid,
               oldGroupId: initialIncome.groupId ?? null,
-              newStartDate: startDate, // <- ya es 1 de mes
+              newStartDate: startDate,
               amountCents,
               source,
               frequency,
@@ -451,7 +448,7 @@ export function IncomeCreateModal(props: {
               source,
               frequency,
               scope,
-              date: startDate, // <- ya es 1 de mes
+              date: startDate,
               groupId: initialIncome.groupId ?? null,
               endDate: null,
             });
