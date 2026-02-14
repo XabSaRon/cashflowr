@@ -14,7 +14,8 @@
     "confirm": "Confirm",
     "monthShort": "mo",
     "close": "Close",
-    "today": "Today"
+    "today": "Today",
+    "info": "Info"
   },
   "errors": {
     "signInFailed": "Sign-in failed. Check the console."
@@ -168,7 +169,28 @@
       "deleteTitle": "Delete income",
       "deleteDesc": "You are about to delete this income:",
       "deleteError": "Delete failed",
-      "loadingUsers": "…"
+      "loadingUsers": "…",
+      "summary": "Summary",
+      "insights": "Summary",
+      "ytd": "Earned in {{year}}",
+      "prorated": "Actual YTD",
+      "ytdInfoTitle": "How it's calculated",
+      "ytdInfoWhat": "Earned in {{year}}",
+      "ytdInfoDesc": "Sums all income occurrences from January 1st until today.",
+      "ytdInfoOnceTitle": "One-off",
+      "ytdInfoOnceText": "Includes one-off incomes dated in {{year}} and not in the future.",
+      "ytdInfoOnceSum": "One-off subtotal",
+      "ytdInfoRecTitle": "Recurring",
+      "ytdInfoRecText": "Occurrences are counted from their start date until today, respecting their end date if defined.",
+      "ytdInfoNoRec": "No recurring incomes counted yet.",
+      "ytdInfoShowLines": "View breakdown",
+      "ytdInfoRecSum": "Recurring subtotal",
+      "ytdInfoTotal": "Total",
+      "ytdInfoFormula": "Total = One-off + Recurring (occurrences until today)",
+      "runRate": "Recurring income",
+      "perMonth": "/ month",
+      "runRateHelp": "Monthly + (Quarterly/3) + (Yearly/12)",
+      "actions": "Actions"
     }
   }
 }

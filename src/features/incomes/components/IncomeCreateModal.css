@@ -1,11 +1,22 @@
 .hmodal__backdrop.hmodal__backdrop--incomeCreate {
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: contain;
+
   background: rgba(0, 0, 0, 0.74);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
 }
 
+.hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
+  max-height: min(86vh, 820px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .hmodal__panel {
-  overflow: visible !important;
+  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
@@ -817,8 +828,9 @@
    ========================= */
 
 @media (max-width: 560px) {
-  .hmodal__panel {
-    overflow: hidden !important;
+  .hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
   }
 
   .imodal__row {

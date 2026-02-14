@@ -44,14 +44,12 @@
   opacity: 0.95;
 }
 
-/* mini separadores */
 .pop__hr {
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   margin: 10px 0;
 }
 
-/* lista compacta */
 .pop__list {
   display: grid;
   gap: 6px;
@@ -68,4 +66,60 @@
 }
 .pop__v {
   font-weight: 900;
+}
+
+.pop__meta {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+/* =========================
+   Toggle (chevron)
+========================= */
+.pop__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-top: 10px;
+  padding: 10px 10px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+
+  color: inherit;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pop__toggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pop__toggle:active {
+  transform: translateY(1px);
+}
+
+.pop__toggleLabel {
+  font-weight: 950;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.pop__chev {
+  width: 18px;
+  height: 18px;
+  opacity: 0.75;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.pop__chev.on {
+  transform: rotate(180deg);
+  opacity: 1;
 }

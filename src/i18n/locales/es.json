@@ -17,7 +17,8 @@
     "confirm": "Confirmar",
     "monthShort": "mes",
     "close": "Cerrar",
-    "today": "Hoy"
+    "today": "Hoy",
+    "info": "Info"
   },
   "onboarding": {
     "title": "Crea tu hogar",
@@ -167,7 +168,28 @@
       "deleteTitle": "Eliminar ingreso",
       "deleteDesc": "Vas a eliminar este ingreso:",
       "deleteError": "Error al eliminar",
-      "loadingUsers": "…"
+      "loadingUsers": "…",
+      "summary": "Resumen",
+      "insights": "Resumen",
+      "ytd": "Ganado en {{year}}",
+      "prorated": "YTD real",
+      "ytdInfoTitle": "Cómo se calcula",
+      "ytdInfoWhat": "Ganado en {{year}}",
+      "ytdInfoDesc": "Suma los ingresos ya ocurridos desde el 1 de enero hasta hoy.",
+      "ytdInfoOnceTitle": "Puntuales",
+      "ytdInfoOnceText": "Se incluyen los ingresos puntuales con fecha en {{year}} y no futura.",
+      "ytdInfoOnceSum": "Subtotal puntual",
+      "ytdInfoRecTitle": "Recurrentes",
+      "ytdInfoRecText": "Se suman las ocurrencias desde su inicio hasta hoy, respetando su fecha de finalización si existe.",
+      "ytdInfoNoRec": "No hay recurrentes contabilizados aún.",
+      "ytdInfoShowLines": "Ver desglose",
+      "ytdInfoRecSum": "Subtotal recurrente",
+      "ytdInfoTotal": "Total",
+      "ytdInfoFormula": "Total = Puntual + Recurrente (ocurrencias hasta hoy)",
+      "runRate": "Ingreso recurrente",
+      "perMonth": "/ mes",
+      "runRateHelp": "Mensual + (Trimestral/3) + (Anual/12)",
+      "actions": "Acciones"
     }
   }
 }

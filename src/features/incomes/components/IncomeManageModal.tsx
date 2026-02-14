@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Lock, Info } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Pencil, Trash2, Lock, Info, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Timestamp, doc, getDoc, deleteDoc } from "firebase/firestore";
 import { fbDb } from "../../../lib/firebase";
@@ -11,6 +11,7 @@ import type {
 } from "../api/incomes.service";
 
 import { ConfirmModal } from "../../shared/components/ConfirmModal";
+import { Popover } from "../../shared/components/Popover";
 import { IncomeCreateModal } from "./IncomeCreateModal";
 import type { IncomeInitial } from "./IncomeCreateModal";
 
@@ -22,6 +23,15 @@ type UserLite = {
   email: string | null;
   photoURL: string | null;
   homeId: string | null;
+};
+
+type YtdLine = {
+  incomeId: string;
+  source: string;
+  frequency: IncomeFrequency;
+  amountCents: number;
+  count: number;
+  subtotalCents: number;
 };
 
 function toDate(ts: Timestamp) {
@@ -176,11 +186,47 @@ export function IncomeManageModal(props: {
   const [editIncome, setEditIncome] = useState<IncomeInitial | null>(null);
   const [openEdit, setOpenEdit] = useState(false);
 
+  const [openYtdInfo, setOpenYtdInfo] = useState(false);
+  const [showYtdLines, setShowYtdLines] = useState(false);
+  const ytdInfoBtnRef = useRef<HTMLButtonElement | null>(null);
+
   const uidsKey = useMemo(() => {
     const uids = rows.map((r) => r.createdByUid).filter(Boolean);
     uids.sort();
     return uids.join("|");
   }, [rows]);
+
+  useEffect(() => {
+    if (!open) {
+      setOpenYtdInfo(false);
+      setShowYtdLines(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!openYtdInfo) setShowYtdLines(false);
+  }, [openYtdInfo]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const scrollY = window.scrollY;
+
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    return () => {
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -218,6 +264,7 @@ export function IncomeManageModal(props: {
     () => rows.filter((r) => r.frequency === "once"),
     [rows],
   );
+
   const recurrentActive = useMemo(() => {
     const now = new Date();
 
@@ -253,61 +300,94 @@ export function IncomeManageModal(props: {
   }, [recurrentActive]);
 
   const year = new Date().getFullYear();
-  const { ytdCents, runRateMonthlyCents, onceYtdCents, recurrentYtdCents } =
-    useMemo(() => {
-      const now = new Date();
-      const yearStart = new Date(year, 0, 1);
 
-      let once = 0;
-      let recurrentYtd = 0;
-      let runRateMonthly = 0;
+  const {
+    ytdCents,
+    runRateMonthlyCents,
+    onceYtdCents,
+    recurrentYtdCents,
+    ytdLines,
+  } = useMemo(() => {
+    const now = new Date();
+    const yearStart = new Date(year, 0, 1);
 
-      for (const r of rows) {
-        const cents = r.amountCents ?? 0;
-        if (cents <= 0) continue;
+    let once = 0;
+    let recurrentYtd = 0;
+    let runRateMonthly = 0;
 
-        if (r.frequency === "once") {
-          const d = toDate(r.date);
-          if (d.getFullYear() === year && d <= now) once += cents;
-          continue;
-        }
+    const breakdown = new Map<string, YtdLine>();
 
-        const start = toDate(r.date);
-        if (start > now) continue;
+    for (const r of rows) {
+      const cents = r.amountCents ?? 0;
+      if (cents <= 0) continue;
 
-        const endLive = r.endDate ? toDate(r.endDate) : null;
-        const isActiveNow = start <= now && (!endLive || endLive >= now);
-
-        if (isActiveNow) {
-          if (r.frequency === "monthly") runRateMonthly += cents;
-          if (r.frequency === "quarterly")
-            runRateMonthly += Math.round(cents / 3);
-          if (r.frequency === "yearly")
-            runRateMonthly += Math.round(cents / 12);
-        }
-
-        const end = endLive ?? now;
-        const effectiveEnd = end < now ? end : now;
-
-        let cur = firstOnOrAfter(start, yearStart, r.frequency);
-        let guard = 0;
-        while (cur <= effectiveEnd && guard < 500) {
-          if (cur.getFullYear() === year) recurrentYtd += cents;
-
-          const nxt = nextOccurrence(cur, r.frequency);
-          if (nxt.getTime() === cur.getTime()) break;
-          cur = nxt;
-          guard += 1;
-        }
+      if (r.frequency === "once") {
+        const d = toDate(r.date);
+        if (d.getFullYear() === year && d <= now) once += cents;
+        continue;
       }
 
-      return {
-        ytdCents: once + recurrentYtd,
-        runRateMonthlyCents: runRateMonthly,
-        onceYtdCents: once,
-        recurrentYtdCents: recurrentYtd,
-      };
-    }, [rows, year]);
+      const start = toDate(r.date);
+      if (start > now) continue;
+
+      const endLive = r.endDate ? toDate(r.endDate) : null;
+      const isActiveNow = start <= now && (!endLive || endLive >= now);
+
+      if (isActiveNow) {
+        if (r.frequency === "monthly") runRateMonthly += cents;
+        if (r.frequency === "quarterly")
+          runRateMonthly += Math.round(cents / 3);
+        if (r.frequency === "yearly") runRateMonthly += Math.round(cents / 12);
+      }
+
+      const end = endLive ?? now;
+      const effectiveEnd = end < now ? end : now;
+
+      let cur = firstOnOrAfter(start, yearStart, r.frequency);
+      let guard = 0;
+
+      while (cur <= effectiveEnd && guard < 500) {
+        if (cur.getFullYear() === year) {
+          recurrentYtd += cents;
+
+          const prev = breakdown.get(r.id);
+          if (!prev) {
+            breakdown.set(r.id, {
+              incomeId: r.id,
+              source: r.source ?? "",
+              frequency: r.frequency,
+              amountCents: cents,
+              count: 1,
+              subtotalCents: cents,
+            });
+          } else {
+            breakdown.set(r.id, {
+              ...prev,
+              count: prev.count + 1,
+              subtotalCents: prev.subtotalCents + cents,
+            });
+          }
+        }
+
+        const nxt = nextOccurrence(cur, r.frequency);
+        if (nxt.getTime() === cur.getTime()) break;
+        cur = nxt;
+        guard += 1;
+      }
+    }
+
+    const ytdLines = Array.from(breakdown.values()).sort(
+      (a, b) => b.subtotalCents - a.subtotalCents,
+    );
+
+    return {
+      ytdCents: once + recurrentYtd,
+      runRateMonthlyCents: runRateMonthly,
+      onceYtdCents: once,
+      recurrentYtdCents: recurrentYtd,
+      ytdLines,
+    };
+  }, [rows, year]);
 
   function ownerText(uid: string) {
     if (uid === currentUid) return t("incomes.manage.you");
@@ -336,6 +416,17 @@ export function IncomeManageModal(props: {
     }
   }
 
+  function closeAll() {
+    setOpenYtdInfo(false);
+    setShowYtdLines(false);
+    onClose();
+  }
+
+  function closeYtdInfo() {
+    setOpenYtdInfo(false);
+    setShowYtdLines(false);
+  }
+
   if (!open) return null;
 
   return (
@@ -359,7 +450,7 @@ export function IncomeManageModal(props: {
 
           <button
             className="imgr__close"
-            onClick={onClose}
+            onClick={closeAll}
             aria-label={t("common.close")}
           >
             ✕
@@ -376,6 +467,7 @@ export function IncomeManageModal(props: {
             <div className="imgr__summaryTitle">
               {t("incomes.manage.insights", "Resumen")}
             </div>
+
             <div className="imgr__stat imgr__stat--ytd">
               <div className="imgr__statTop">
                 <div className="imgr__statLabel">
@@ -388,11 +480,13 @@ export function IncomeManageModal(props: {
                   </div>
 
                   <button
+                    ref={ytdInfoBtnRef}
                     type="button"
                     className="imgr__infoBtn"
                     aria-label={t("common.info", "Info")}
                     title={t("common.info", "Info")}
-                    onClick={() => {}}
+                    aria-expanded={openYtdInfo}
+                    onClick={() => setOpenYtdInfo((v) => !v)}
                   >
                     <Info
                       className="imgr__icon imgr__icon--info"
@@ -514,6 +608,7 @@ export function IncomeManageModal(props: {
                             className="imgr__iconBtn"
                             title={t("incomes.manage.edit")}
                             onClick={() => {
+                              closeYtdInfo();
                               setEditIncome({
                                 id: r.id,
                                 amountCents: r.amountCents,
@@ -535,7 +630,10 @@ export function IncomeManageModal(props: {
                             type="button"
                             className="imgr__iconBtn danger"
                             title={t("incomes.manage.delete")}
-                            onClick={() => setConfirmDelete(r)}
+                            onClick={() => {
+                              closeYtdInfo();
+                              setConfirmDelete(r);
+                            }}
                           >
                             <Trash2 className="imgr__icon" aria-hidden="true" />
                           </button>
@@ -629,6 +727,7 @@ export function IncomeManageModal(props: {
                               className="imgr__iconBtn"
                               title={t("incomes.manage.edit")}
                               onClick={() => {
+                                closeYtdInfo();
                                 setEditIncome({
                                   id: r.id,
                                   amountCents: r.amountCents,
@@ -653,7 +752,10 @@ export function IncomeManageModal(props: {
                               type="button"
                               className="imgr__iconBtn danger"
                               title={t("incomes.manage.delete")}
-                              onClick={() => setConfirmDelete(r)}
+                              onClick={() => {
+                                closeYtdInfo();
+                                setConfirmDelete(r);
+                              }}
                             >
                               <Trash2
                                 className="imgr__icon"
@@ -676,16 +778,134 @@ export function IncomeManageModal(props: {
               </div>
             )}
           </section>
+
+          {/* ===================== YTD Popover ===================== */}
+          <Popover
+            open={openYtdInfo}
+            anchorEl={ytdInfoBtnRef.current}
+            onClose={closeYtdInfo}
+            title={t("incomes.manage.ytdInfoTitle")}
+            placement="top"
+            align="end"
+          >
+            <div>
+              <div>
+                <b>{t("incomes.manage.ytdInfoWhat", { year })}</b>{" "}
+                {t("incomes.manage.ytdInfoDesc")}
+              </div>
+
+              <div className="pop__hr" />
+
+              <div>
+                <b>{t("incomes.manage.ytdInfoOnceTitle")}</b>
+                <div>{t("incomes.manage.ytdInfoOnceText", { year })}</div>
+
+                <div className="pop__list" style={{ marginTop: 10 }}>
+                  <div className="pop__row">
+                    <span className="pop__k">
+                      {t("incomes.manage.ytdInfoOnceSum")}
+                    </span>
+                    <span className="pop__v">
+                      {formatEUR(onceYtdCents, i18n.language)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pop__hr" />
+
+              <div>
+                <b>{t("incomes.manage.ytdInfoRecTitle")}</b>
+                <div style={{ marginTop: 6, opacity: 0.85 }}>
+                  {t("incomes.manage.ytdInfoRecText")}
+                </div>
+
+                {ytdLines.length === 0 ? (
+                  <div style={{ marginTop: 8, opacity: 0.75 }}>
+                    {t("incomes.manage.ytdInfoNoRec")}
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="pop__toggle"
+                      aria-expanded={showYtdLines}
+                      onClick={() => setShowYtdLines((v) => !v)}
+                      style={{ marginTop: 10 }}
+                    >
+                      <span className="pop__toggleLabel">
+                        {t("incomes.manage.ytdInfoShowLines")}
+                      </span>
+                      <ChevronDown
+                        className={`pop__chev ${showYtdLines ? "on" : ""}`}
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    {showYtdLines && (
+                      <div className="pop__list" style={{ marginTop: 10 }}>
+                        {ytdLines.map((x) => (
+                          <div
+                            key={x.incomeId}
+                            className="pop__row pop__row--line"
+                          >
+                            <div className="pop__left">
+                              <div className="pop__name">{x.source || "—"}</div>
+                              <div className="pop__meta">
+                                {freqLabel(x.frequency, (k) => t(k))} ·{" "}
+                                {x.count} ×{" "}
+                                {formatEUR(x.amountCents, i18n.language)}
+                              </div>
+                            </div>
+                            <div className="pop__v">
+                              {formatEUR(x.subtotalCents, i18n.language)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="pop__list" style={{ marginTop: 10 }}>
+                  <div className="pop__row">
+                    <span className="pop__k">
+                      {t("incomes.manage.ytdInfoRecSum")}
+                    </span>
+                    <span className="pop__v">
+                      {formatEUR(recurrentYtdCents, i18n.language)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pop__hr" />
+
+              <div className="pop__list">
+                <div className="pop__row">
+                  <span className="pop__k">
+                    {t("incomes.manage.ytdInfoTotal")}
+                  </span>
+                  <span className="pop__v">
+                    {formatEUR(ytdCents, i18n.language)}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 8, opacity: 0.75 }}>
+                <code>{t("incomes.manage.ytdInfoFormula")}</code>
+              </div>
+            </div>
+          </Popover>
         </div>
 
         <div className="imgr__footer">
-          <button className="imgr__btn ghost imgr__btnClose" onClick={onClose}>
+          <button className="imgr__btn ghost imgr__btnClose" onClick={closeAll}>
             {t("common.close")}
           </button>
         </div>
       </div>
 
-      {/* Confirm delete */}
       {confirmDelete && (
         <ConfirmModal
           open={!!confirmDelete}
