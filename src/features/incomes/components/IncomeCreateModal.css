@@ -2,23 +2,37 @@
   position: fixed;
   inset: 0;
   overscroll-behavior: contain;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow: auto;
 
   background: rgba(0, 0, 0, 0.74);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
 }
 
-.hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
-  max-height: min(86vh, 820px);
-  overflow: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
 .hmodal__panel {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
+  overflow: visible;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+.hmodal__backdrop.hmodal__backdrop--incomeCreate .imodal__body {
+  padding: 14px 18px 18px;
+  display: grid;
+  gap: 14px;
+  overflow: visible;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* =========================
@@ -80,12 +94,6 @@
 /* =========================
    Body + fields
    ========================= */
-
-.imodal__body {
-  padding: 14px 18px 18px;
-  display: grid;
-  gap: 14px;
-}
 
 .imodal__field {
   display: grid;
@@ -187,6 +195,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex: 0 0 auto;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -330,7 +339,7 @@
 
 .iselect__menu {
   position: absolute;
-  z-index: 1000;
+  z-index: 2500;
   left: 0;
   right: 0;
   margin-top: 8px;
@@ -814,6 +823,50 @@
   opacity: 1;
 }
 
+/* =========================
+   Stop recurrent income
+========================= */
+.imodal__stop {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.imodal__stopTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.imodal__stopTitle {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+}
+
+.imodal__stopSub {
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.35;
+}
+
+.imodal__stop .itoggle__opt {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.imodal__stop input[type="date"] {
+  height: 40px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hmodal__backdrop.hmodal__backdrop--incomeCreate,
   .hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
@@ -831,6 +884,12 @@
   .hmodal__backdrop.hmodal__backdrop--incomeCreate .hmodal__panel {
     max-height: calc(100dvh - 24px);
     overflow: auto;
+    display: block;
+  }
+
+  .hmodal__backdrop.hmodal__backdrop--incomeCreate .imodal__body {
+    overflow: visible;
+    min-height: unset;
   }
 
   .imodal__row {

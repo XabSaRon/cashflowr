@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Pencil, Trash2, Lock, Info, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Timestamp, doc, getDoc, deleteDoc } from "firebase/firestore";
@@ -135,6 +136,13 @@ function nextOccurrence(d: Date, freq: IncomeFrequency) {
   }
 }
 
+function payDateForOccurrence(d: Date, freq: IncomeFrequency) {
+  if (freq === "monthly" || freq === "quarterly") {
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  }
+  return d;
+}
+
 function firstOnOrAfter(start: Date, target: Date, freq: IncomeFrequency) {
   if (start >= target) return start;
 
@@ -166,6 +174,68 @@ function firstOnOrAfter(start: Date, target: Date, freq: IncomeFrequency) {
   return cur;
 }
 
+type DateRange = { from: Date | null; to: Date | null };
+
+function startOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+}
+function endOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
+function parseDateInput(v: string): Date | null {
+  if (!v) return null;
+  const d = new Date(`${v}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function toDateInputValue(d: Date | null) {
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function inRange(d: Date, range: DateRange) {
+  const t = d.getTime();
+  if (range.from && t < startOfDay(range.from).getTime()) return false;
+  if (range.to && t > endOfDay(range.to).getTime()) return false;
+  return true;
+}
+
+function rangeThisMonth(now = new Date()): DateRange {
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return { from, to };
+}
+
+function rangeLastMonths(n: number, now = new Date()): DateRange {
+  const from = new Date(now.getFullYear(), now.getMonth() - (n - 1), 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return { from, to };
+}
+
+function rangeThisYear(now = new Date()): DateRange {
+  return {
+    from: new Date(now.getFullYear(), 0, 1),
+    to: new Date(now.getFullYear(), 11, 31),
+  };
+}
+
+function sameDay(a: Date | null, b: Date | null) {
+  if (!a || !b) return false;
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function sameRange(a: DateRange, b: DateRange) {
+  return sameDay(a.from, b.from) && sameDay(a.to, b.to);
+}
+
 export function IncomeManageModal(props: {
   open: boolean;
   onClose: () => void;
@@ -190,6 +260,35 @@ export function IncomeManageModal(props: {
   const [showYtdLines, setShowYtdLines] = useState(false);
   const ytdInfoBtnRef = useRef<HTMLButtonElement | null>(null);
 
+  const [oneOffQuery, setOneOffQuery] = useState("");
+  const [oneOffRange, setOneOffRange] = useState<DateRange>({
+    from: null,
+    to: null,
+  });
+
+  const [oneOffFromDraft, setOneOffFromDraft] = useState("");
+  const [oneOffToDraft, setOneOffToDraft] = useState("");
+
+  const [openOneOffFilter, setOpenOneOffFilter] = useState(false);
+  const oneOffFilterBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  const presetThisMonth = useMemo(() => rangeThisMonth(), []);
+  const presetLast3Months = useMemo(() => rangeLastMonths(3), []);
+  const presetThisYear = useMemo(() => rangeThisYear(), []);
+  const presetAll = useMemo(() => ({ from: null, to: null }) as DateRange, []);
+
+  const isPresetThisMonth = sameRange(oneOffRange, presetThisMonth);
+  const isPresetLast3 = sameRange(oneOffRange, presetLast3Months);
+  const isPresetThisYear = sameRange(oneOffRange, presetThisYear);
+  const isPresetAll = sameRange(oneOffRange, presetAll);
+
+  const isCustomRange =
+    !isPresetThisMonth &&
+    !isPresetLast3 &&
+    !isPresetThisYear &&
+    !isPresetAll &&
+    (oneOffRange.from !== null || oneOffRange.to !== null);
+
   const uidsKey = useMemo(() => {
     const uids = rows.map((r) => r.createdByUid).filter(Boolean);
     uids.sort();
@@ -206,6 +305,13 @@ export function IncomeManageModal(props: {
   useEffect(() => {
     if (!openYtdInfo) setShowYtdLines(false);
   }, [openYtdInfo]);
+
+  useEffect(() => {
+    if (!open) return;
+    setOneOffQuery("");
+    setOneOffRange({ from: null, to: null });
+    setOpenOneOffFilter(false);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -255,15 +361,39 @@ export function IncomeManageModal(props: {
     };
   }, [open, homeId, uidsKey]);
 
+  useEffect(() => {
+    if (!openOneOffFilter) return;
+    setOneOffFromDraft(toDateInputValue(oneOffRange.from));
+    setOneOffToDraft(toDateInputValue(oneOffRange.to));
+  }, [openOneOffFilter, oneOffRange.from, oneOffRange.to]);
+
   useLayoutEffect(() => {
     if (!open || !homeId) return;
     setUsersLoading(true);
   }, [open, homeId, uidsKey]);
 
-  const oneOff = useMemo(
+  const oneOffBase = useMemo(
     () => rows.filter((r) => r.frequency === "once"),
     [rows],
   );
+
+  const oneOff = useMemo(() => {
+    const q = oneOffQuery.trim().toLowerCase();
+
+    return oneOffBase.filter((r) => {
+      if (!countsForMe(r, currentUid)) return false;
+
+      const d = toDate(r.date);
+      if (!inRange(d, oneOffRange)) return false;
+
+      if (q) {
+        const src = (r.source ?? "").toLowerCase();
+        if (!src.includes(q)) return false;
+      }
+
+      return true;
+    });
+  }, [oneOffBase, oneOffQuery, oneOffRange, currentUid]);
 
   const recurrentActive = useMemo(() => {
     const now = new Date();
@@ -318,6 +448,8 @@ export function IncomeManageModal(props: {
     const breakdown = new Map<string, YtdLine>();
 
     for (const r of rows) {
+      if (!countsForMe(r, currentUid)) continue;
+
       const cents = r.amountCents ?? 0;
       if (cents <= 0) continue;
 
@@ -347,7 +479,9 @@ export function IncomeManageModal(props: {
       let guard = 0;
 
       while (cur <= effectiveEnd && guard < 500) {
-        if (cur.getFullYear() === year) {
+        const payDate = payDateForOccurrence(cur, r.frequency);
+
+        if (payDate <= effectiveEnd && payDate.getFullYear() === year) {
           recurrentYtd += cents;
 
           const prev = breakdown.get(r.id);
@@ -387,12 +521,18 @@ export function IncomeManageModal(props: {
       recurrentYtdCents: recurrentYtd,
       ytdLines,
     };
-  }, [rows, year]);
+  }, [rows, year, currentUid]);
 
   function ownerText(uid: string) {
     if (uid === currentUid) return t("incomes.manage.you");
     const u = usersMap.get(uid);
     return u?.displayName || u?.email || uid.slice(0, 6);
+  }
+
+  function countsForMe(r: IncomeRow, currentUid: string) {
+    const scope = r.scope ?? "shared";
+    if (scope === "shared") return true;
+    return r.createdByUid === currentUid;
   }
 
   function canEdit(r: IncomeRow) {
@@ -661,6 +801,183 @@ export function IncomeManageModal(props: {
               </div>
               <span className="imgr__count">{oneOff.length}</span>
             </div>
+
+            {/* Filtros Puntuales */}
+            <div className="imgr__filters">
+              <div
+                className="imgr__filterChips"
+                role="group"
+                aria-label={t(
+                  "incomes.manage.filters.oneOffAria",
+                  "Filtros puntuales",
+                )}
+              >
+                <button
+                  type="button"
+                  className={`imgr__chipBtn ${sameRange(oneOffRange, presetThisMonth) ? "is-on" : ""}`}
+                  onClick={() => setOneOffRange(presetThisMonth)}
+                >
+                  {t("incomes.manage.filters.thisMonth")}
+                </button>
+
+                <button
+                  type="button"
+                  className={`imgr__chipBtn ${sameRange(oneOffRange, presetLast3Months) ? "is-on" : ""}`}
+                  onClick={() => setOneOffRange(presetLast3Months)}
+                >
+                  {t("incomes.manage.filters.last3Months")}
+                </button>
+
+                <button
+                  type="button"
+                  className={`imgr__chipBtn ${sameRange(oneOffRange, presetThisYear) ? "is-on" : ""}`}
+                  onClick={() => setOneOffRange(presetThisYear)}
+                >
+                  {t("incomes.manage.filters.thisYear")}
+                </button>
+
+                <button
+                  type="button"
+                  className={`imgr__chipBtn ghost ${sameRange(oneOffRange, presetAll) ? "is-on" : ""}`}
+                  onClick={() => setOneOffRange(presetAll)}
+                >
+                  {t("incomes.manage.filters.all", "Todo")}
+                </button>
+
+                <button
+                  ref={oneOffFilterBtnRef}
+                  type="button"
+                  className={`imgr__chipBtn ghost ${isCustomRange || openOneOffFilter ? "is-on" : ""}`}
+                  aria-expanded={openOneOffFilter}
+                  onClick={() => setOpenOneOffFilter((v) => !v)}
+                >
+                  {t("incomes.manage.filters.range")}
+                </button>
+              </div>
+
+              <input
+                className="imgr__search"
+                value={oneOffQuery}
+                onChange={(e) => setOneOffQuery(e.target.value)}
+                placeholder={t(
+                  "incomes.manage.filters.searchPlaceholder",
+                  "Buscar…",
+                )}
+                aria-label={t(
+                  "incomes.manage.filters.searchAria",
+                  "Buscar puntuales",
+                )}
+              />
+            </div>
+
+            {/* Popover rango */}
+            <Popover
+              open={openOneOffFilter}
+              anchorEl={oneOffFilterBtnRef.current}
+              onClose={() => setOpenOneOffFilter(false)}
+              title={t(
+                "incomes.manage.filters.rangeTitle",
+                "Filtrar por fechas",
+              )}
+              placement="top"
+              align="end"
+            >
+              <div className="imgr__rangeBox">
+                <label className="imgr__rangeRow">
+                  <span>{t("incomes.manage.filters.from")}</span>
+                  <input
+                    type="date"
+                    value={oneOffFromDraft}
+                    onChange={(e) => setOneOffFromDraft(e.target.value)}
+                    onBlur={() => {
+                      const v = oneOffFromDraft;
+
+                      if (v === "") {
+                        setOneOffRange((r) => ({ ...r, from: null }));
+                        return;
+                      }
+
+                      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                        setOneOffRange((r) => ({
+                          ...r,
+                          from: parseDateInput(v),
+                        }));
+                      } else {
+                        setOneOffFromDraft(toDateInputValue(oneOffRange.from));
+                      }
+                    }}
+                  />
+                </label>
+
+                <label className="imgr__rangeRow">
+                  <span>{t("incomes.manage.filters.to")}</span>
+                  <input
+                    type="date"
+                    value={oneOffToDraft}
+                    onChange={(e) => setOneOffToDraft(e.target.value)}
+                    onBlur={() => {
+                      const v = oneOffToDraft;
+
+                      if (v === "") {
+                        setOneOffRange((r) => ({ ...r, to: null }));
+                        return;
+                      }
+
+                      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                        setOneOffRange((r) => ({
+                          ...r,
+                          to: parseDateInput(v),
+                        }));
+                      } else {
+                        setOneOffToDraft(toDateInputValue(oneOffRange.to));
+                      }
+                    }}
+                  />
+                </label>
+
+                <div className="imgr__rangeActions">
+                  <button
+                    type="button"
+                    className="imgr__btn ghost"
+                    onClick={() => {
+                      setOneOffRange({ from: null, to: null });
+                      setOneOffFromDraft("");
+                      setOneOffToDraft("");
+                      setOpenOneOffFilter(false);
+                    }}
+                  >
+                    {t("incomes.manage.filters.reset")}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="imgr__btn"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      flushSync(() => setOpenOneOffFilter(false));
+
+                      const commit = (v: string, key: "from" | "to") => {
+                        if (v === "") {
+                          setOneOffRange((r) => ({ ...r, [key]: null }));
+                          return;
+                        }
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                          setOneOffRange((r) => ({
+                            ...r,
+                            [key]: parseDateInput(v),
+                          }));
+                        }
+                      };
+
+                      commit(oneOffFromDraft, "from");
+                      commit(oneOffToDraft, "to");
+                    }}
+                  >
+                    {t("incomes.manage.filters.apply")}
+                  </button>
+                </div>
+              </div>
+            </Popover>
 
             {oneOff.length === 0 ? (
               <div className="imgr__empty">

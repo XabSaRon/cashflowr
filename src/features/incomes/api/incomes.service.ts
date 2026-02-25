@@ -131,6 +131,7 @@ export async function splitIncomeChange(params: {
   frequency: IncomeFrequency;
   scope: IncomeScope;
   currentUid: string;
+  endDate?: Date | null;
 }) {
   const newStart = startOfDay(params.newStartDate);
   const oldEnd = addDays(newStart, -1);
@@ -157,7 +158,7 @@ export async function splitIncomeChange(params: {
     frequency: params.frequency,
     scope: params.scope,
     date: Timestamp.fromDate(newStart),
-    endDate: null,
+    endDate: params.endDate ? Timestamp.fromDate(params.endDate) : null,
     groupId,
     createdByUid: params.currentUid,
     createdAt: serverTimestamp(),

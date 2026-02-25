@@ -62,6 +62,14 @@ function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
 
+function endOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
+function clampISODateMin(valueISO: string, minISO: string) {
+  return valueISO < minISO ? minISO : valueISO;
+}
+
 export type IncomeInitial = {
   id: string;
   amountCents: number;
@@ -99,11 +107,17 @@ export function IncomeCreateModal(props: {
   const freqWrapRef = useRef<HTMLDivElement | null>(null);
   const [freqOpen, setFreqOpen] = useState(false);
 
-  // --- custom date state ---
+  // --- custom date state (START date) ---
   const [dateOpen, setDateOpen] = useState(false);
   const dateWrapRef = useRef<HTMLDivElement | null>(null);
   const datePopRef = useRef<HTMLDivElement | null>(null);
   const [datePopStyle, setDatePopStyle] = useState<React.CSSProperties>({});
+
+  // --- custom date state (END date) ---
+  const [endOpen, setEndOpen] = useState(false);
+  const endWrapRef = useRef<HTMLDivElement | null>(null);
+  const endPopRef = useRef<HTMLDivElement | null>(null);
+  const [endPopStyle, setEndPopStyle] = useState<React.CSSProperties>({});
 
   // --- scope attention (flash + focus) ---
   const scopeRef = useRef<HTMLDivElement | null>(null);
@@ -117,6 +131,11 @@ export function IncomeCreateModal(props: {
 
   const [mounted, setMounted] = useState(false);
   const [show, setShow] = useState(false);
+
+  const [stopEnabled, setStopEnabled] = useState(false);
+  const [endDate, setEndDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
 
   const sourceErrHard = useMemo(() => validateSource(source), [source]);
   const [touched, setTouched] = useState<{ amount: boolean; source: boolean }>({
@@ -135,9 +154,75 @@ export function IncomeCreateModal(props: {
     return isRecurrent ? startOfMonth(selectedDateObj) : selectedDateObj;
   }, [isRecurrent, selectedDateObj]);
 
-  const effectiveStartLabel = useMemo(() => {
-    return format(effectiveStartObj, "dd/MM/yyyy");
+  const effectiveStartLabel = useMemo(
+    () => format(effectiveStartObj, "dd/MM/yyyy"),
+    [effectiveStartObj],
+  );
+
+  const minEndISO = useMemo(() => {
+    // para recurrente, tu inicio efectivo es el 1 del mes
+    return toISODate(effectiveStartObj);
   }, [effectiveStartObj]);
+
+  const canEditThis = useMemo(() => {
+    if (!initialIncome) return true;
+    return initialIncome.createdByUid === currentUid;
+  }, [initialIncome, currentUid]);
+
+  const endDateISOClamped = useMemo(
+    () => clampISODateMin(endDate, minEndISO),
+    [endDate, minEndISO],
+  );
+
+  const selectedEndObj = useMemo(
+    () => parseISO(endDateISOClamped),
+    [endDateISOClamped],
+  );
+  const endDateLabel = useMemo(
+    () => format(selectedEndObj, "dd/MM/yyyy"),
+    [selectedEndObj],
+  );
+
+  // ✅ Helpers para que los botones del END date no “fallen” por propagación / cierre accidental
+  const closeEnd = (e?: {
+    preventDefault?: () => void;
+    stopPropagation?: () => void;
+  }) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    setEndOpen(false);
+  };
+
+  const pickEndToday = (e?: {
+    preventDefault?: () => void;
+    stopPropagation?: () => void;
+  }) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!canEditThis) return;
+
+    const today = new Date();
+    const iso = format(today, "yyyy-MM-dd");
+    setEndDate(clampISODateMin(iso, minEndISO));
+    setEndMonth(today);
+    setEndOpen(false);
+  };
+
+  const endDateError = useMemo(() => {
+    if (!isEdit) return null;
+    if (!isRecurrent) return null;
+    if (!stopEnabled) return null;
+    if (!canEditThis) return null;
+
+    const ed = parseISO(endDate);
+    if (Number.isNaN(ed.getTime())) return t("common.invalidDate");
+    if (endDate < minEndISO)
+      return t("incomes.edit.endDateTooEarly", {
+        date: format(parseISO(minEndISO), "dd/MM/yyyy"),
+      });
+
+    return null;
+  }, [isEdit, isRecurrent, stopEnabled, canEditThis, endDate, minEndISO, t]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 560px)");
@@ -225,6 +310,7 @@ export function IncomeCreateModal(props: {
     setError(null);
     setFreqOpen(false);
     setDateOpen(false);
+    setEndOpen(false);
     setTouched({ amount: false, source: false });
 
     if (initialIncome) {
@@ -236,6 +322,15 @@ export function IncomeCreateModal(props: {
       setFrequency(initialIncome.frequency ?? "monthly");
       setScope(initialIncome.scope ?? "shared");
       setDate(toISODate(d));
+
+      const ed = dateFromIncomeDate(initialIncome.endDate ?? null);
+      if (ed) {
+        setStopEnabled(true);
+        setEndDate(toISODate(ed));
+      } else {
+        setStopEnabled(false);
+        setEndDate(new Date().toISOString().slice(0, 10));
+      }
       return;
     }
 
@@ -244,6 +339,8 @@ export function IncomeCreateModal(props: {
     setFrequency("monthly");
     setScope("shared");
     setDate(new Date().toISOString().slice(0, 10));
+    setStopEnabled(false);
+    setEndDate(new Date().toISOString().slice(0, 10));
   }, [open, initialIncome]);
 
   useEffect(() => {
@@ -266,6 +363,7 @@ export function IncomeCreateModal(props: {
     };
   }, [freqOpen]);
 
+  // ---- Place START date popover (desktop)
   useEffect(() => {
     if (!dateOpen) return;
     if (isMobile) return;
@@ -325,8 +423,75 @@ export function IncomeCreateModal(props: {
     };
   }, [dateOpen, isMobile]);
 
+  // ---- Place END date popover (desktop)
+  useEffect(() => {
+    if (!endOpen) return;
+    if (isMobile) return;
+
+    function place() {
+      const wrap = endWrapRef.current;
+      const pop = endPopRef.current;
+      if (!wrap || !pop) return;
+
+      const rect = wrap.getBoundingClientRect();
+      const margin = 12;
+      const gap = 8;
+      const targetW = Math.min(rect.width, 360);
+
+      let style: React.CSSProperties = {
+        position: "absolute",
+        right: 0,
+        width: targetW,
+        top: `calc(100% + ${gap}px)`,
+      };
+
+      const popH = pop.offsetHeight;
+      const wouldBottomCut =
+        rect.bottom + gap + popH > window.innerHeight - margin;
+      if (wouldBottomCut) {
+        style = {
+          position: "absolute",
+          right: 0,
+          width: targetW,
+          bottom: `calc(100% + ${gap}px)`,
+        };
+      }
+
+      setEndPopStyle(style);
+    }
+
+    function onDocDown(e: PointerEvent) {
+      const target = e.target as Node;
+      if (endWrapRef.current?.contains(target)) return;
+      if (endPopRef.current?.contains(target)) return;
+      setEndOpen(false);
+    }
+
+    function onEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") setEndOpen(false);
+    }
+
+    requestAnimationFrame(place);
+    window.addEventListener("resize", place);
+    document.addEventListener("pointerdown", onDocDown);
+    document.addEventListener("keydown", onEsc);
+
+    return () => {
+      window.removeEventListener("resize", place);
+      document.removeEventListener("pointerdown", onDocDown);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [endOpen, isMobile]);
+
   useEffect(() => {
     if (frequency !== "once") setScope("shared");
+  }, [frequency]);
+
+  useEffect(() => {
+    if (frequency === "once") {
+      setStopEnabled(false);
+      setEndDate(new Date().toISOString().slice(0, 10));
+    }
   }, [frequency]);
 
   useEffect(() => {
@@ -352,10 +517,11 @@ export function IncomeCreateModal(props: {
     setMonth(selectedDateObj);
   }, [dateOpen, selectedDateObj]);
 
-  const canEditThis = useMemo(() => {
-    if (!initialIncome) return true;
-    return initialIncome.createdByUid === currentUid;
-  }, [initialIncome, currentUid]);
+  const [endMonth, setEndMonth] = useState<Date>(() => selectedEndObj);
+  useEffect(() => {
+    if (!endOpen) return;
+    setEndMonth(selectedEndObj);
+  }, [endOpen, selectedEndObj]);
 
   const amountCents = useMemo(() => {
     if (!isValidAmountText(amount)) return null;
@@ -394,6 +560,7 @@ export function IncomeCreateModal(props: {
     if (!canEditThis) {
       setFreqOpen(false);
       setDateOpen(false);
+      setEndOpen(false);
     }
   }, [canEditThis]);
 
@@ -403,7 +570,8 @@ export function IncomeCreateModal(props: {
     !busy &&
     !!amountCents &&
     !amountError &&
-    !sourceErrHard;
+    !sourceErrHard &&
+    !endDateError;
 
   const scopeLabel =
     scope === "shared"
@@ -435,13 +603,18 @@ export function IncomeCreateModal(props: {
 
       let startDate = new Date(date + "T00:00:00");
 
+      const endDateDate =
+        stopEnabled && frequency !== "once"
+          ? endOfDay(parseISO(clampISODateMin(endDate, minEndISO)))
+          : null;
+
       if (initialIncome) {
-        const isRecurrent = frequency !== "once";
-        const oldWasRecurrent = initialIncome.frequency !== "once";
+        const isRec = frequency !== "once";
+        const oldWasRec = initialIncome.frequency !== "once";
 
         const oldStartRaw = dateFromIncomeDate(initialIncome.date);
 
-        if (isRecurrent || oldWasRecurrent) {
+        if (isRec || oldWasRec) {
           startDate = startOfMonth(startDate);
 
           const oldStart = oldStartRaw ? startOfMonth(oldStartRaw) : null;
@@ -460,6 +633,7 @@ export function IncomeCreateModal(props: {
               frequency,
               scope,
               currentUid,
+              endDate: endDateDate,
             });
           } else {
             await overwriteIncome({
@@ -471,7 +645,7 @@ export function IncomeCreateModal(props: {
               scope,
               date: startDate,
               groupId: initialIncome.groupId ?? null,
-              endDate: null,
+              endDate: endDateDate,
             });
           }
         } else {
@@ -626,6 +800,7 @@ export function IncomeCreateModal(props: {
                     className="iselect__menu"
                     role="listbox"
                     aria-label={t("incomes.create.frequencyLabel")}
+                    onPointerDown={(e) => e.stopPropagation()}
                   >
                     {frequencyOptions.map((opt) => {
                       const active = opt.value === frequency;
@@ -638,12 +813,19 @@ export function IncomeCreateModal(props: {
                           aria-selected={active}
                           className={`iselect__opt ${active ? "is-active" : ""}`}
                           onPointerDown={(e) => {
-                            if (!canEditThis) return;
                             e.preventDefault();
                             e.stopPropagation();
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            if (!canEditThis) return;
                             setFrequency(opt.value);
                             setFreqOpen(false);
-                            queueMicrotask(() => freqBtnRef.current?.focus());
+                            requestAnimationFrame(() =>
+                              freqBtnRef.current?.focus(),
+                            );
                           }}
                         >
                           <div className="iselect__optTitle">{opt.label}</div>
@@ -659,7 +841,7 @@ export function IncomeCreateModal(props: {
               </div>
             </label>
 
-            {/* Date picker */}
+            {/* START Date picker */}
             <div className="imodal__field">
               <span>{t("incomes.create.dateLabel")}</span>
 
@@ -830,6 +1012,218 @@ export function IncomeCreateModal(props: {
               <span className="idate__hint2">
                 {t("incomes.create.recurrentAppliesFromWhy")}
               </span>
+            </div>
+          )}
+
+          {/* END DATE */}
+          {isEdit && isRecurrent && canEditThis && (
+            <div className="imodal__stop">
+              <div className="imodal__stopTop">
+                <div className="imodal__stopTitle">
+                  {t("incomes.edit.stopTitle")}
+                </div>
+
+                <button
+                  type="button"
+                  className={`itoggle__opt ${stopEnabled ? "is-active" : ""}`}
+                  disabled={!canEditThis}
+                  onClick={() => setStopEnabled((v) => !v)}
+                >
+                  {stopEnabled ? t("common.on") : t("common.off")}
+                </button>
+              </div>
+
+              <div className="imodal__stopSub">
+                {t("incomes.edit.stopHelp")}
+              </div>
+
+              {stopEnabled && (
+                <label
+                  className={`imodal__field ${endDateError ? "is-invalid" : ""}`}
+                >
+                  <span>{t("incomes.edit.endDateLabel")}</span>
+
+                  <div className="idate" ref={endWrapRef}>
+                    <button
+                      type="button"
+                      className="idate__btn"
+                      aria-haspopup="dialog"
+                      aria-expanded={endOpen}
+                      disabled={!canEditThis}
+                      onClick={() => {
+                        if (!canEditThis) return;
+                        setEndOpen((v) => !v);
+                      }}
+                    >
+                      <span className="idate__value">{endDateLabel}</span>
+                      <span className="idate__icon" aria-hidden>
+                        📅
+                      </span>
+                    </button>
+
+                    {endOpen &&
+                      (isMobile ? (
+                        <div
+                          className="idateSheet__backdrop"
+                          role="dialog"
+                          aria-label={t("incomes.edit.endDateLabel")}
+                          onClick={() => setEndOpen(false)}
+                        >
+                          <div
+                            className="idateSheet"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="idateSheet__head">
+                              <div className="idateSheet__title">
+                                {t("incomes.edit.endDateLabel")}
+                              </div>
+                              <button
+                                type="button"
+                                className="idateSheet__close"
+                                onPointerDown={(e) => {
+                                  closeEnd(e);
+                                }}
+                                onClick={(e) => {
+                                  closeEnd(e);
+                                }}
+                                aria-label={t("common.close")}
+                              >
+                                ✕
+                              </button>
+                            </div>
+
+                            <DayPicker
+                              mode="single"
+                              selected={selectedEndObj}
+                              month={endMonth}
+                              onMonthChange={setEndMonth}
+                              disabled={(d) => d < parseISO(minEndISO)}
+                              onSelect={(d) => {
+                                if (!canEditThis) return;
+                                if (!d) return;
+                                const iso = format(d, "yyyy-MM-dd");
+                                setEndDate(clampISODateMin(iso, minEndISO));
+                                setEndMonth(d);
+                                setEndOpen(false);
+                              }}
+                              locale={es}
+                              weekStartsOn={1}
+                              showOutsideDays
+                            />
+
+                            <div className="idateSheet__actions">
+                              <button
+                                type="button"
+                                className="idate__action"
+                                onPointerDown={(e) => {
+                                  pickEndToday(e);
+                                }}
+                                onClick={(e) => {
+                                  pickEndToday(e);
+                                }}
+                              >
+                                {t("common.today")}
+                              </button>
+
+                              <button
+                                type="button"
+                                className="idate__action ghost"
+                                onPointerDown={(e) => {
+                                  closeEnd(e);
+                                }}
+                                onClick={(e) => {
+                                  closeEnd(e);
+                                }}
+                              >
+                                {t("common.close")}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          ref={endPopRef}
+                          className="idate__pop"
+                          style={endPopStyle}
+                          role="dialog"
+                          aria-label={t("incomes.edit.endDateLabel")}
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          <div className="idate__popHead">
+                            <div className="idate__popTitle">
+                              {t("incomes.edit.endDateLabel")}
+                            </div>
+                            <button
+                              type="button"
+                              className="idate__popClose"
+                              onPointerDown={(e) => {
+                                closeEnd(e);
+                              }}
+                              onClick={(e) => {
+                                closeEnd(e);
+                              }}
+                              aria-label={t("common.close")}
+                            >
+                              ✕
+                            </button>
+                          </div>
+
+                          <DayPicker
+                            mode="single"
+                            selected={selectedEndObj}
+                            month={endMonth}
+                            onMonthChange={setEndMonth}
+                            disabled={(d) => d < parseISO(minEndISO)}
+                            onSelect={(d) => {
+                              if (!canEditThis) return;
+                              if (!d) return;
+                              const iso = format(d, "yyyy-MM-dd");
+                              setEndDate(clampISODateMin(iso, minEndISO));
+                              setEndMonth(d);
+                              setEndOpen(false);
+                            }}
+                            locale={es}
+                            weekStartsOn={1}
+                            showOutsideDays
+                          />
+
+                          <div className="idate__actions">
+                            <button
+                              type="button"
+                              className="idate__action"
+                              onPointerDown={(e) => {
+                                pickEndToday(e);
+                              }}
+                              onClick={(e) => {
+                                pickEndToday(e);
+                              }}
+                            >
+                              {t("common.today")}
+                            </button>
+                            <button
+                              type="button"
+                              className="idate__action ghost"
+                              onPointerDown={(e) => {
+                                closeEnd(e);
+                              }}
+                              onClick={(e) => {
+                                closeEnd(e);
+                              }}
+                            >
+                              {t("common.close")}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+
+                  {endDateError && (
+                    <div id="enddate-error" className="ifield__error">
+                      {endDateError}
+                    </div>
+                  )}
+                </label>
+              )}
             </div>
           )}
 

@@ -7,6 +7,9 @@ import { useIncomes } from "../../incomes/hooks/useIncomes";
 import { IncomeCreateModal } from "../../incomes/components/IncomeCreateModal";
 import type { IncomeFrequency } from "../../incomes/api/incomes.service";
 import { IncomeManageModal } from "../../incomes/components/IncomeManageModal";
+import { CashflowChart } from "../components/CashflowChart";
+import { CashflowDonut } from "../components/CashflowDonut";
+import { buildMonthlyIncomeSeries, endOfMonth } from "../utils/cashflowSeries";
 
 type TimestampLike = { toDate: () => Date };
 type Dateish = Date | string | number | TimestampLike | null | undefined;
@@ -17,6 +20,7 @@ type IncomeRowLite = {
   scope?: "shared" | "personal";
   createdByUid?: string;
   date?: Dateish;
+  endDate?: Dateish;
 };
 
 function isTimestampLike(v: unknown): v is TimestampLike {
@@ -44,7 +48,18 @@ function isMyPersonal(r: IncomeRowLite, uid: string) {
   return (r.scope ?? "shared") === "personal" && r.createdByUid === uid;
 }
 
-function calcMonthlyEstimatedIncomeCentsShared(rows: IncomeRowLite[]) {
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
+}
+function endOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
+function calcMonthlyEstimatedIncomeCentsShared(
+  rows: IncomeRowLite[],
+  now = new Date(),
+) {
+  const som = startOfMonth(now);
   let total = 0;
 
   for (const r of rows) {
@@ -52,6 +67,9 @@ function calcMonthlyEstimatedIncomeCentsShared(rows: IncomeRowLite[]) {
 
     const cents = r.amountCents ?? 0;
     if (cents <= 0) continue;
+
+    const end = toDateSafe(r.endDate);
+    if (end && endOfDay(end) < som) continue;
 
     switch (r.frequency) {
       case "monthly":
@@ -63,7 +81,6 @@ function calcMonthlyEstimatedIncomeCentsShared(rows: IncomeRowLite[]) {
       case "yearly":
         total += Math.round(cents / 12);
         break;
-      case "once":
       default:
         break;
     }
@@ -72,7 +89,10 @@ function calcMonthlyEstimatedIncomeCentsShared(rows: IncomeRowLite[]) {
   return total;
 }
 
-function calcOneOffThisMonthCentsShared(rows: IncomeRowLite[], now = new Date()) {
+function calcOneOffThisMonthCentsShared(
+  rows: IncomeRowLite[],
+  now = new Date(),
+) {
   const y = now.getFullYear();
   const m = now.getMonth();
   let total = 0;
@@ -83,7 +103,8 @@ function calcOneOffThisMonthCentsShared(rows: IncomeRowLite[], now = new Date())
 
     const d = toDateSafe(r.date);
     if (!d) continue;
-    if (d.getFullYear() === y && d.getMonth() === m) total += r.amountCents ?? 0;
+    if (d.getFullYear() === y && d.getMonth() === m)
+      total += r.amountCents ?? 0;
   }
 
   return total;
@@ -92,7 +113,7 @@ function calcOneOffThisMonthCentsShared(rows: IncomeRowLite[], now = new Date())
 function calcOneOffThisMonthCentsMyPersonal(
   rows: IncomeRowLite[],
   uid: string,
-  now = new Date()
+  now = new Date(),
 ) {
   const y = now.getFullYear();
   const m = now.getMonth();
@@ -104,7 +125,8 @@ function calcOneOffThisMonthCentsMyPersonal(
 
     const d = toDateSafe(r.date);
     if (!d) continue;
-    if (d.getFullYear() === y && d.getMonth() === m) total += r.amountCents ?? 0;
+    if (d.getFullYear() === y && d.getMonth() === m)
+      total += r.amountCents ?? 0;
   }
 
   return total;
@@ -131,25 +153,27 @@ export function DashboardPage({ user }: { user: User }) {
   const safeRows = rows as unknown as IncomeRowLite[];
 
   const monthlyEstimatedSharedCents = useMemo(
-    () => calcMonthlyEstimatedIncomeCentsShared(safeRows),
-    [safeRows]
+    () => calcMonthlyEstimatedIncomeCentsShared(safeRows, new Date()),
+    [safeRows],
   );
 
   const oneOffSharedThisMonthCents = useMemo(
     () => calcOneOffThisMonthCentsShared(safeRows),
-    [safeRows]
+    [safeRows],
   );
 
   const myOneOffThisMonthCents = useMemo(
     () => calcOneOffThisMonthCentsMyPersonal(safeRows, user.uid),
-    [safeRows, user.uid]
+    [safeRows, user.uid],
   );
+
+  const [chartMode, setChartMode] = useState<"bar" | "donut">("bar");
 
   const bigValue = useMemo(() => {
     if (loading) return "—";
     return `${formatEUR(monthlyEstimatedSharedCents, i18n.language)} / ${t(
       "common.monthShort",
-      "mes"
+      "mes",
     )}`;
   }, [loading, monthlyEstimatedSharedCents, i18n.language, t]);
 
@@ -176,6 +200,32 @@ export function DashboardPage({ user }: { user: User }) {
     return (safeRows?.length ?? 0) === 0;
   }, [loading, safeRows]);
 
+  const locale = i18n.language.startsWith("en") ? "en-IE" : "es-ES";
+
+  const series = useMemo(() => {
+    if (loading) return { labels: [], cents: [] };
+    return buildMonthlyIncomeSeries(
+      safeRows,
+      endOfMonth(new Date()),
+      12,
+      locale,
+    );
+  }, [loading, safeRows, locale]);
+
+  const monthIncomeCents = useMemo(() => {
+    if (loading) return 0;
+
+    const now = new Date();
+    const plannedSeries = buildMonthlyIncomeSeries(
+      safeRows,
+      endOfMonth(now),
+      12,
+      locale,
+    );
+
+    return plannedSeries.cents[plannedSeries.cents.length - 1] ?? 0;
+  }, [loading, safeRows, locale]);
+
   return (
     <div className="dash">
       <div className="dash__wrap">
@@ -184,12 +234,54 @@ export function DashboardPage({ user }: { user: User }) {
           <header className="dash__header dash__glass dash__heroHeader">
             <h1 className="dash__title">{t("dashboard.title")}</h1>
             <p className="dash__sub">{t("dashboard.subtitle", { name })}</p>
+
+            {!loading && series.labels.length > 0 && (
+              <div className="dash__heroChart">
+                <div className="dash__heroViz">
+                  {chartMode === "bar" ? (
+                    <CashflowChart
+                      labels={series.labels}
+                      valuesCents={series.cents}
+                    />
+                  ) : (
+                    <CashflowDonut
+                      incomeCents={monthIncomeCents}
+                      locale={locale}
+                    />
+                  )}
+                </div>
+
+                <div
+                  className="dash__chartToggle"
+                  role="tablist"
+                  aria-label={t("dashboard.chart.ariaLabel")}
+                >
+                  <button
+                    type="button"
+                    className={`dash__toggleBtn ${chartMode === "bar" ? "is-on" : ""}`}
+                    onClick={() => setChartMode("bar")}
+                  >
+                    {t("dashboard.chart.historic")}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`dash__toggleBtn ${chartMode === "donut" ? "is-on" : ""}`}
+                    onClick={() => setChartMode("donut")}
+                  >
+                    {t("dashboard.chart.currentMonth")}
+                  </button>
+                </div>
+              </div>
+            )}
           </header>
 
           {/* INGRESOS */}
           <div className="dash__card dash__glass dash__card--incomes">
             <div className="dash__cardTop">
-              <div className="dash__cardTitle">{t("dashboard.cards.incomes.title")}</div>
+              <div className="dash__cardTitle">
+                {t("dashboard.cards.incomes.title")}
+              </div>
 
               <div className="dash__iconGroup">
                 {/* Ver / gestionar ingresos */}
@@ -202,7 +294,13 @@ export function DashboardPage({ user }: { user: User }) {
                   disabled={!homeId}
                 >
                   {/* Icono lista (SVG) */}
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    aria-hidden="true"
+                  >
                     <path
                       d="M8 6h13M8 12h13M8 18h13"
                       stroke="currentColor"
@@ -260,12 +358,21 @@ export function DashboardPage({ user }: { user: User }) {
               </div>
             )}
 
-            {!hasNoIncomes && !oneOffSharedLine && !oneOffPersonalLine && !loading && (
-              <div className="dash__quietMeta" role="note" aria-label="Estado de puntuales">
-                <span className="dash__quietDot" aria-hidden="true" />
-                <span className="dash__quietText">Sin ingresos puntuales este mes</span>
-              </div>
-            )}
+            {!hasNoIncomes &&
+              !oneOffSharedLine &&
+              !oneOffPersonalLine &&
+              !loading && (
+                <div
+                  className="dash__quietMeta"
+                  role="note"
+                  aria-label={t("dashboard.cards.incomes.oneOffEmptyAria")}
+                >
+                  <span className="dash__quietDot" aria-hidden="true" />
+                  <span className="dash__quietText">
+                    {t("dashboard.cards.incomes.oneOffEmptyThisMonth")}
+                  </span>
+                </div>
+              )}
 
             <div className="dash__meta">
               {(oneOffSharedLine || oneOffPersonalLine) && (
@@ -284,7 +391,12 @@ export function DashboardPage({ user }: { user: User }) {
                       <div className="dash__metaRow">
                         <span className="dash__metaIcon" aria-hidden="true">
                           {/* Home/Shared SVG */}
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="16"
+                            height="16"
+                            fill="none"
+                          >
                             <path
                               d="M3.5 10.5 12 3.75 20.5 10.5V20a1.75 1.75 0 0 1-1.75 1.75H5.25A1.75 1.75 0 0 1 3.5 20v-9.5Z"
                               stroke="currentColor"
@@ -314,7 +426,12 @@ export function DashboardPage({ user }: { user: User }) {
                       <div className="dash__metaRow">
                         <span className="dash__metaIcon" aria-hidden="true">
                           {/* User/Personal SVG */}
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="16"
+                            height="16"
+                            fill="none"
+                          >
                             <path
                               d="M12 12.25a4.25 4.25 0 1 0-4.25-4.25A4.25 4.25 0 0 0 12 12.25Z"
                               stroke="currentColor"
@@ -347,27 +464,41 @@ export function DashboardPage({ user }: { user: User }) {
           {/* GASTOS */}
           <div className="dash__card dash__glass dash__card--expenses">
             <div className="dash__cardTop">
-              <div className="dash__cardTitle">{t("dashboard.cards.expenses.title")}</div>
+              <div className="dash__cardTitle">
+                {t("dashboard.cards.expenses.title")}
+              </div>
             </div>
-            <div className="dash__muted">{t("dashboard.cards.expenses.desc")}</div>
+            <div className="dash__muted">
+              {t("dashboard.cards.expenses.desc")}
+            </div>
           </div>
 
           {/* AHORRO / INVERSIÓN */}
           <div className="dash__card dash__glass dash__card--savings dash__card--accent">
             <div className="dash__cardTop">
-              <div className="dash__cardTitle">{t("dashboard.cards.savings.title")}</div>
-              <span className="dash__chip is-savings">{t("dashboard.cards.savings.chip")}</span>
+              <div className="dash__cardTitle">
+                {t("dashboard.cards.savings.title")}
+              </div>
+              <span className="dash__chip is-savings">
+                {t("dashboard.cards.savings.chip")}
+              </span>
             </div>
 
-            <div className="dash__muted">{t("dashboard.cards.savings.desc")}</div>
+            <div className="dash__muted">
+              {t("dashboard.cards.savings.desc")}
+            </div>
 
             <div className="dash__kpis">
               <div className="dash__kpi">
-                <div className="dash__kpiLabel">{t("dashboard.cards.savings.kpiSaved")}</div>
+                <div className="dash__kpiLabel">
+                  {t("dashboard.cards.savings.kpiSaved")}
+                </div>
                 <div className="dash__kpiValue">—</div>
               </div>
               <div className="dash__kpi">
-                <div className="dash__kpiLabel">{t("dashboard.cards.savings.kpiInvested")}</div>
+                <div className="dash__kpiLabel">
+                  {t("dashboard.cards.savings.kpiInvested")}
+                </div>
                 <div className="dash__kpiValue">—</div>
               </div>
             </div>
@@ -388,7 +519,6 @@ export function DashboardPage({ user }: { user: User }) {
           currentUid={user.uid}
           rows={rows}
         />
-
       </div>
     </div>
   );

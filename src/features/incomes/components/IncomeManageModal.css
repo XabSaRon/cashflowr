@@ -688,6 +688,169 @@
 }
 
 /* =========================
+   Puntuales: Filters
+========================= */
+.imgr__filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  margin: 2px 4px 12px;
+}
+
+.imgr__filterChips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.imgr__chipBtn {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.15px;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.imgr__chipBtn.is-on {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.imgr__chipBtn.is-on.ghost {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.imgr__chipBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.imgr__chipBtn:active {
+  transform: translateY(1px);
+}
+
+.imgr__chipBtn.ghost {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.imgr__chipBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.imgr__search {
+  height: 34px;
+  min-width: 220px;
+  flex: 1 1 240px;
+
+  padding: 0 12px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.16);
+  color: inherit;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.imgr__search::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 750;
+}
+
+.imgr__search:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+/* =========================
+   Popover range content
+========================= */
+.imgr__rangeBox {
+  display: grid;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.imgr__rangeRow {
+  display: grid;
+  gap: 6px;
+}
+
+.imgr__rangeRow > span {
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.78;
+}
+
+.imgr__rangeRow input[type="date"] {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.16);
+  color: inherit;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.imgr__rangeRow input[type="date"]:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.imgr__rangeActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* =========================
    Responsive
 ========================= */
 @media (hover: hover) and (pointer: fine) {
@@ -741,5 +904,13 @@
 
   .imgr__amount {
     font-size: 17px;
+  }
+
+  .imgr__filters {
+    gap: 10px;
+  }
+  .imgr__search {
+    min-width: 100%;
+    flex-basis: 100%;
   }
 }

@@ -18,7 +18,10 @@
     "monthShort": "mes",
     "close": "Cerrar",
     "today": "Hoy",
-    "info": "Info"
+    "info": "Info",
+    "on": "Sí",
+    "off": "No",
+    "invalidDate": "Fecha inválida"
   },
   "onboarding": {
     "title": "Crea tu hogar",
@@ -53,6 +56,14 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Hola, {{name}}. Vamos a poner tu hogar en orden.",
+    "chart": {
+      "historic": "Histórico",
+      "currentMonth": "Mes actual",
+      "ariaLabel": "Vista de gráfico",
+      "thisMonth": "Este mes",
+      "incomeLabel": "Ingresos",
+      "restLabel": "Resto"
+    },
     "cards": {
       "incomes": {
         "title": "Ingresos",
@@ -68,7 +79,9 @@
         "manageTitle": "Ver ingresos",
         "needHomeTitle": "Necesitas un hogar",
         "emptyHint": "Añade tus primeros ingresos para ver el total mensual.",
-        "emptyHintCta": "Añadir ingreso"
+        "emptyHintCta": "Añadir ingreso",
+        "oneOffEmptyAria": "Estado de puntuales",
+        "oneOffEmptyThisMonth": "Sin ingresos puntuales este mes"
       },
       "expenses": {
         "title": "Gastos",
@@ -152,7 +165,11 @@
     "edit": {
       "title": "Editar ingreso",
       "subtitle": "Modifica este ingreso",
-      "save": "Guardar cambios"
+      "save": "Guardar cambios",
+      "stopTitle": "Detener ingreso",
+      "stopHelp": "Pon una fecha de fin para mantener el histórico y dejar de contar a partir de ahí.",
+      "endDateLabel": "Fecha de fin",
+      "endDateTooEarly": "La fecha de fin no puede ser anterior al inicio efectivo ({{date}})."
     },
     "manage": {
       "title": "Ingresos",
@@ -189,7 +206,22 @@
       "runRate": "Ingreso recurrente",
       "perMonth": "/ mes",
       "runRateHelp": "Mensual + (Trimestral/3) + (Anual/12)",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "filters": {
+        "oneOffAria": "Filtros puntuales",
+        "thisMonth": "Este mes",
+        "last3Months": "3 meses",
+        "thisYear": "Este año",
+        "all": "Todo",
+        "range": "Rango…",
+        "rangeTitle": "Filtrar por fechas",
+        "from": "Desde",
+        "to": "Hasta",
+        "reset": "Cerrar",
+        "apply": "Aplicar",
+        "searchPlaceholder": "Buscar…",
+        "searchAria": "Buscar puntuales"
+      }
     }
   }
 }

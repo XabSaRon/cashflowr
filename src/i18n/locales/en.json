@@ -15,7 +15,10 @@
     "monthShort": "mo",
     "close": "Close",
     "today": "Today",
-    "info": "Info"
+    "info": "Info",
+    "on": "Yes",
+    "off": "No",
+    "invalidDate": "Invalid date"
   },
   "errors": {
     "signInFailed": "Sign-in failed. Check the console."
@@ -53,6 +56,14 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Hi, {{name}}. Let’s get your home set up.",
+    "chart": {
+      "historic": "History",
+      "currentMonth": "Current month",
+      "ariaLabel": "Chart view",
+      "thisMonth": "This month",
+      "incomeLabel": "Income",
+      "restLabel": "Remaining"
+    },
     "cards": {
       "incomes": {
         "title": "Income",
@@ -68,7 +79,9 @@
         "manageTitle": "View incomes",
         "needHomeTitle": "You need a home",
         "emptyHint": "Add your first incomes to see your monthly total.",
-        "emptyHintCta": "Add income"
+        "emptyHintCta": "Add income",
+        "oneOffEmptyAria": "One-off income status",
+        "oneOffEmptyThisMonth": "No one-off income this month"
       },
       "expenses": {
         "title": "Expenses",
@@ -153,7 +166,11 @@
     "edit": {
       "title": "Edit income",
       "subtitle": "Update this income",
-      "save": "Save changes"
+      "save": "Save changes",
+      "stopTitle": "Stop income",
+      "stopHelp": "Set an end date to keep the history and stop counting after that date.",
+      "endDateLabel": "End date",
+      "endDateTooEarly": "The end date can’t be earlier than the effective start date ({{date}})."
     },
     "manage": {
       "title": "Incomes",
@@ -190,7 +207,22 @@
       "runRate": "Recurring income",
       "perMonth": "/ month",
       "runRateHelp": "Monthly + (Quarterly/3) + (Yearly/12)",
-      "actions": "Actions"
+      "actions": "Actions",
+      "filters": {
+        "oneOffAria": "One-off filters",
+        "thisMonth": "This month",
+        "last3Months": "3 months",
+        "thisYear": "This year",
+        "all": "All",
+        "range": "Range…",
+        "rangeTitle": "Filter by date",
+        "from": "From",
+        "to": "To",
+        "reset": "Reset",
+        "apply": "Apply",
+        "searchPlaceholder": "Search…",
+        "searchAria": "Search one-off"
+      }
     }
   }
 }
